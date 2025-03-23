@@ -1,0 +1,265 @@
+package org.firstinspires.ftc.teamcode.teleop;
+
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.drive.RobotFactory;
+import org.firstinspires.ftc.teamcode.drive.SensorUpdateThread;
+import org.firstinspires.ftc.teamcode.drive.robot1.Robot1;
+import org.firstinspires.ftc.teamcode.task.ParallelTask;
+import org.firstinspires.ftc.teamcode.task.SeriesTask;
+import org.firstinspires.ftc.teamcode.task.SleepTask;
+import org.firstinspires.ftc.teamcode.task.Task;
+import org.firstinspires.ftc.teamcode.task.DeliveryClawTask;
+import org.firstinspires.ftc.teamcode.task.DiffyTask;
+import org.firstinspires.ftc.teamcode.task.HorizontalSlidesTask;
+import org.firstinspires.ftc.teamcode.task.IntakeArmTask;
+import org.firstinspires.ftc.teamcode.task.IntakeClawTask;
+import org.firstinspires.ftc.teamcode.task.IntakePivotTask;
+import org.firstinspires.ftc.teamcode.task.IntakeWristTask;
+import org.firstinspires.ftc.teamcode.task.IntakeTurretTask;
+import org.firstinspires.ftc.teamcode.util.GamePad;
+import org.firstinspires.ftc.teamcode.util.limelight.LimelightConfig;
+import org.firstinspires.ftc.teamcode.util.limelight.LimelightProcessorBase;
+
+@TeleOp(name = "TeleOp1")
+public class TeleOp1 extends LinearOpMode {
+
+    public static int pipelineNo = 6;
+    private Task task = null;
+    private IntakeState intakeState = IntakeState.NEUTRAL;
+
+
+    private Robot1 robot;
+    private GamePad gp1, gp2;
+
+    private boolean clawOpen, intakeClawVertical = true;
+
+    public static double MAX_SLIDE_EXTENSION_INCH = 21.0, VERTICAL_STAND_POWER = 0.2;
+
+    private SensorUpdateThread sensorUpdateThread;
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        robot = (Robot1) RobotFactory.createRobot(hardwareMap);
+        robot.limelight.pipelineSwitch(pipelineNo);
+        sensorUpdateThread = new SensorUpdateThread(robot);
+        robot.teleOpInit();
+        gp1 = new GamePad(gamepad1);
+        gp2 = new GamePad(gamepad2);
+        waitForStart();
+        robot.limelight.start();
+        sensorUpdateThread.start();
+
+        while (opModeIsActive()) {
+
+            driveRobot();
+            runIntake();
+            runDelivery();
+            runHorizontalSlides();
+            checkPreset();
+            update();
+
+        }
+        robot.limelight.stop();
+        sensorUpdateThread.interrupt();
+    }
+    private void checkPreset() {
+
+    }
+    private void runDelivery() {
+        if(-gp2.leftStickY()>0.3) {
+            robot.setVerticalSlidePowerWithoutEncoder(1.0);
+        }else if(-gp2.leftStickY()<-0.3) {
+            robot.setVerticalSlidePowerWithoutEncoder(-0.5);
+        } else {
+            robot.setVerticalSlidePowerWithoutEncoder(robot.getVerticalSlidesHeightInch()<1.0?0:VERTICAL_STAND_POWER);
+        }
+    }
+
+    private void driveRobot() {
+        double x = 0, y = 0, a = 0;
+        if (gp1.dpadLeft() || gp1.dpadRight()) {
+            a = 0.5 * (gp1.dpadLeft() ? 1 : -1);
+        } else if (gp1.dpadUp() || gp1.dpadDown()) {
+            x = 0.3 * (gp1.dpadUp() ? 1 : -1);
+        } else {
+            x = -gp1.leftStickY();
+            y = -gp1.leftStickX();
+            a = -gp1.rightStickX() * 0.9;
+        }
+        double pow = Math.sqrt(x * x + y * y);
+//        double limPow = driveLim.calculate(pow);
+//        if (pow > MIN_DRIVE_POW) {
+//            x *= limPow / pow;
+//            y *= limPow / pow;
+//        }
+//        a = turnLim.calculate(a);
+//        telemetry.addData("driving", x + " " + y + " " + a);
+
+        robot.setDrivePowers(new PoseVelocity2d(new Vector2d(x, y), a));
+    }
+
+    private void runHorizontalSlides() { //TODO: check this logic
+        if(gp1.onceLeftBumper()) {
+            if(task!=null) {
+                task.cancel();
+            }
+            task = new HorizontalSlidesTask(robot, 22, 1.0, 1500);
+        }
+    }
+
+    private void runIntake(){
+
+        if(gp1.onceRightTrigger() || gp2.onceRightTrigger()) {
+            if(task != null) task.cancel();
+            if(intakeState == IntakeState.NEUTRAL) {
+                //go to hover
+                task = createHoverTask();
+                intakeClawVertical = true;
+                intakeState = IntakeState.HOVER;
+            } else if(intakeState == IntakeState.TRANSFER) {
+                //go to neutral
+                task = createNeutralTask();
+                intakeClawVertical = true;
+                intakeState = IntakeState.NEUTRAL;
+            } else if(intakeState == IntakeState.HOVER) {
+                //try to intake
+                task = createIntakeRetryTask();
+                intakeState = IntakeState.HOVER;
+            }
+        } else if(gp1.onceLeftTrigger() || gp2.onceLeftTrigger()) {
+            if(intakeState == IntakeState.HOVER) {
+                if(task != null) task.cancel();
+                //go to transfer
+                task = createTransferTask();
+                intakeClawVertical = true;
+                intakeState = IntakeState.TRANSFER;
+            }
+        }
+
+        if (gp1.onceA() || gp2.onceA()) {
+            robot.setDeliveryClawPos(clawOpen ? DeliveryClawTask.Position.CLOSE : DeliveryClawTask.Position.OPEN);
+            clawOpen = !clawOpen;
+        }
+
+        if (gp1.onceRightBumper() || gp2.onceRightBumper()) {
+            robot.setIntakePivotPos(intakeClawVertical? IntakePivotTask.Position.HORIZONTAL : IntakePivotTask.Position.VERTICAL);
+            intakeClawVertical = ! intakeClawVertical;
+        }
+    }
+
+    private void update() {
+
+//        LLStatus status = robot.limelight.getStatus();
+//        telemetry.addData("Name", "%s",
+//                status.getName());
+//        telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
+//                status.getTemp(), status.getCpu(),(int)status.getFps());
+//        telemetry.addData("Pipeline", "Index: %d, Type: %s",
+//                status.getPipelineIndex(), status.getPipelineType());
+//
+//        Coordinates objectPosition = limelightProcessor.getObjectPosition(objectCenterHeightInch);
+//        telemetry.addData("objectXPos",objectPosition.x);
+//        telemetry.addData("objectYPos",objectPosition.y);
+//        telemetry.addData("objectAngleRadians",objectPosition.angle);
+
+        if(task != null && task.perform())  task = null;
+        gp1.update();
+        gp2.update();
+        robot.updateEverything();
+    }
+
+    private enum IntakeState {
+        NEUTRAL,
+        TRANSFER,
+        HOVER
+    }
+
+    private Task createHoverTask() {
+        Task hoverTask = new SeriesTask(
+                new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN),
+                new ParallelTask(
+                        new HorizontalSlidesTask(robot, 10.0,1.0,1500),
+                        new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
+                        new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
+                        new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL),
+                        new IntakeWristTask(robot, IntakeWristTask.Position.HOVER),
+                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
+                        new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.TRANSFER),
+                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.TRANSFER)
+                )
+        );
+        return hoverTask;
+    }
+    private Task createIntakeRetryTask() {
+        Task intakeRetryTask = new SeriesTask(
+                new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
+                new SleepTask(300),
+                new ParallelTask(
+                        new IntakeArmTask(robot, IntakeArmTask.Position.DOWN),
+                        new IntakeWristTask(robot, IntakeWristTask.Position.DOWN)
+                ),
+                new ParallelTask(
+                        new IntakeClawTask(robot, IntakeClawTask.Position.CLOSE)
+                ),
+                new SleepTask(300),
+                new ParallelTask(
+                        new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
+                        new IntakeWristTask(robot, IntakeWristTask.Position.HOVER)
+                )
+        );
+        return intakeRetryTask;
+    }
+    private Task createTransferTask() {
+        Task transferTask = new SeriesTask(
+                new ParallelTask(
+                        new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN),
+                        new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.TRANSFER),
+                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.TRANSFER)
+                ),
+                new ParallelTask(
+                        new SeriesTask(
+                                new SleepTask(300),
+                                new HorizontalSlidesTask(robot, -2.0, 1.0, 1500)
+                        ),
+                        new IntakeArmTask(robot, IntakeArmTask.Position.TRANSFER),
+                        new IntakeClawTask(robot, IntakeClawTask.Position.CLOSE),
+                        new IntakePivotTask(robot, (robot.isSampleDetected()? IntakePivotTask.Position.VERTICAL_INVERSE : IntakePivotTask.Position.VERTICAL)),
+                        new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
+                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT)
+                ),
+                new DeliveryClawTask(robot, DeliveryClawTask.Position.CLOSE),
+                new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
+                new ParallelTask(
+                        new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.DELIVER),
+                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.DELIVER),
+                        new SeriesTask(
+                                new SleepTask(500),
+                                new ParallelTask(
+                                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
+                                        new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
+                                        new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
+                                        new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL)
+                                )
+                        )
+                )
+        );
+        return transferTask;
+    }
+
+    private Task createNeutralTask() {
+        Task neutralTask = new SeriesTask(
+                new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN),
+                new ParallelTask(
+                        new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.UP),
+                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.UP)
+                )
+        );
+        return neutralTask;
+    }
+
+}

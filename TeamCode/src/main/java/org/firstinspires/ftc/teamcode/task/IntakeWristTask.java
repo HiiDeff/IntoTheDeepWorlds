@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.task;
 
+import android.util.Log;
+
 import org.firstinspires.ftc.teamcode.drive.RobotBase;
 import org.firstinspires.ftc.teamcode.task.TimedTask;
 import org.firstinspires.ftc.teamcode.util.Utils;
@@ -25,6 +27,7 @@ public class IntakeWristTask extends TimedTask {
             double targetPos = robot.getIntakeWristPosition(position);
             setFinishTimeMillis(Utils.getEstimatedServoTime(RPM, MAX_ROTATION_DEGREE,
                     targetPos - currPos));
+//            Log.i("posDiff",""+(targetPos-currPos));
             robot.intakeWrist.setPosition(targetPos);
             started = true;
         }
@@ -35,6 +38,7 @@ public class IntakeWristTask extends TimedTask {
         TRANSFER,
         HOVER,
         BACK,
-        DOWN
+        DOWN,
+        SLIGHTLY_UP
     }
 }

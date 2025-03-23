@@ -43,7 +43,8 @@ public class IntakeArmTask extends TimedTask {
         TRANSFER,
         HOVER,
         BACK,
-        DOWN
+        DOWN,
+        SLIGHTLY_UP
     }
 }
 

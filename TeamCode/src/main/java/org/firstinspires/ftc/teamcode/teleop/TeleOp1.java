@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -21,6 +23,7 @@ import org.firstinspires.ftc.teamcode.task.IntakeClawTask;
 import org.firstinspires.ftc.teamcode.task.IntakePivotTask;
 import org.firstinspires.ftc.teamcode.task.IntakeWristTask;
 import org.firstinspires.ftc.teamcode.task.IntakeTurretTask;
+import org.firstinspires.ftc.teamcode.task.VerticalSlidesTask;
 import org.firstinspires.ftc.teamcode.util.GamePad;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightConfig;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightProcessorBase;
@@ -36,14 +39,20 @@ public class TeleOp1 extends LinearOpMode {
     private Robot1 robot;
     private GamePad gp1, gp2;
 
-    private boolean clawOpen, intakeClawVertical = true;
+    private boolean clawOpen, intakeClawVertical = true, testToggle = false;
 
     public static double MAX_SLIDE_EXTENSION_INCH = 21.0, VERTICAL_STAND_POWER = 0.2;
 
     private SensorUpdateThread sensorUpdateThread;
+    private ElapsedTime cycleTimer;
+    private double cycleSum, cycleCnt;
+    public MultipleTelemetry multipleTelemetry;
+
+
 
     @Override
     public void runOpMode() throws InterruptedException {
+        multipleTelemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         robot = (Robot1) RobotFactory.createRobot(hardwareMap);
         robot.limelight.pipelineSwitch(pipelineNo);
         sensorUpdateThread = new SensorUpdateThread(robot);
@@ -63,6 +72,14 @@ public class TeleOp1 extends LinearOpMode {
             checkPreset();
             update();
 
+            if(gp1.onceA()) {
+                if(testToggle) {
+                    robot.setIntakeWristPos(IntakeWristTask.Position.TRANSFER);
+                } else {
+                    robot.setIntakeWristPos(IntakeWristTask.Position.DOWN);
+                }testToggle = !testToggle;
+            }
+
         }
         robot.limelight.stop();
         sensorUpdateThread.interrupt();
@@ -71,11 +88,11 @@ public class TeleOp1 extends LinearOpMode {
 
     }
     private void runDelivery() {
-        if(-gp2.leftStickY()>0.3) {
+        if(gp2.dpadUp()) {
             robot.setVerticalSlidePowerWithoutEncoder(1.0);
-        }else if(-gp2.leftStickY()<-0.3) {
+        }else if(gp2.dpadDown()) {
             robot.setVerticalSlidePowerWithoutEncoder(-0.5);
-        } else {
+        } else if(task==null){
             robot.setVerticalSlidePowerWithoutEncoder(robot.getVerticalSlidesHeightInch()<1.0?0:VERTICAL_STAND_POWER);
         }
     }
@@ -126,6 +143,10 @@ public class TeleOp1 extends LinearOpMode {
                 task = createNeutralTask();
                 intakeClawVertical = true;
                 intakeState = IntakeState.NEUTRAL;
+                if(cycleTimer!=null) {
+                    cycleSum += cycleTimer.seconds();
+                    cycleCnt++;
+                }cycleTimer = new ElapsedTime();
             } else if(intakeState == IntakeState.HOVER) {
                 //try to intake
                 task = createIntakeRetryTask();
@@ -167,6 +188,10 @@ public class TeleOp1 extends LinearOpMode {
 //        telemetry.addData("objectYPos",objectPosition.y);
 //        telemetry.addData("objectAngleRadians",objectPosition.angle);
 
+        multipleTelemetry.addData("avg cycle time", cycleCnt==0?-1:cycleSum/cycleCnt);
+        multipleTelemetry.update();
+
+
         if(task != null && task.perform())  task = null;
         gp1.update();
         gp2.update();
@@ -203,9 +228,7 @@ public class TeleOp1 extends LinearOpMode {
                         new IntakeArmTask(robot, IntakeArmTask.Position.DOWN),
                         new IntakeWristTask(robot, IntakeWristTask.Position.DOWN)
                 ),
-                new ParallelTask(
-                        new IntakeClawTask(robot, IntakeClawTask.Position.CLOSE)
-                ),
+                new IntakeClawTask(robot, IntakeClawTask.Position.CLOSE),
                 new SleepTask(300),
                 new ParallelTask(
                         new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
@@ -224,27 +247,37 @@ public class TeleOp1 extends LinearOpMode {
                 new ParallelTask(
                         new SeriesTask(
                                 new SleepTask(300),
-                                new HorizontalSlidesTask(robot, -2.0, 1.0, 1500)
+                                new HorizontalSlidesTask(robot, -0.0, 1.0, 1500)
                         ),
-                        new IntakeArmTask(robot, IntakeArmTask.Position.TRANSFER),
+                        new IntakeArmTask(robot, IntakeArmTask.Position.SLIGHTLY_UP),
                         new IntakeClawTask(robot, IntakeClawTask.Position.CLOSE),
-                        new IntakePivotTask(robot, (robot.isSampleDetected()? IntakePivotTask.Position.VERTICAL_INVERSE : IntakePivotTask.Position.VERTICAL)),
-                        new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
-                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT)
+                        new IntakeWristTask(robot, IntakeWristTask.Position.SLIGHTLY_UP),
+                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
+                        new IntakePivotTask(robot, (robot.isSampleDetected()? IntakePivotTask.Position.VERTICAL_INVERSE : IntakePivotTask.Position.VERTICAL))
                 ),
-                new DeliveryClawTask(robot, DeliveryClawTask.Position.CLOSE),
-                new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
                 new ParallelTask(
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.DELIVER),
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.DELIVER),
+                        new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
+                        new IntakeArmTask(robot, IntakeArmTask.Position.TRANSFER)
+                ),
+                new ParallelTask(
+                        new HorizontalSlidesTask(robot, -2.0, 1.0, 700),
                         new SeriesTask(
-                                new SleepTask(500),
-                                new ParallelTask(
-                                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
-                                        new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
-                                        new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
-                                        new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL)
-                                )
+                            new DeliveryClawTask(robot, DeliveryClawTask.Position.CLOSE),
+                            new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
+                            new ParallelTask(
+                                    new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.DELIVER),
+                                    new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.DELIVER),
+                                    new SeriesTask(
+                                            new SleepTask(500),
+                                            new ParallelTask(
+                                                    new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
+                                                    new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
+                                                    new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
+                                                    new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL),
+                                                    new VerticalSlidesTask(robot, 30.0,1.0,2000)
+                                            )
+                                    )
+                            )
                         )
                 )
         );
@@ -256,7 +289,11 @@ public class TeleOp1 extends LinearOpMode {
                 new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN),
                 new ParallelTask(
                         new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.UP),
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.UP)
+                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.UP),
+                        new SeriesTask(
+                                new SleepTask(500),
+                                new VerticalSlidesTask(robot, 0.0, 0.5,1500)
+                        )
                 )
         );
         return neutralTask;

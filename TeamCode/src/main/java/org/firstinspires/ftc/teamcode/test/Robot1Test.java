@@ -45,7 +45,8 @@ public class Robot1Test extends LinearOpMode {
 
     public static LimelightConfig LLConfig = new LimelightConfig(640, 480,
             -30, 54,41,
-            7.5,6.0,15.0); //ROBOT 5 MEASUREMENTS
+            7.5,6.0,14.3,
+            0.081081081, 0.081081081); //ROBOT 5 MEASUREMENTS
     private LimelightSampleDetector limelightSampleDetector;
 
     public Robot1 robot;

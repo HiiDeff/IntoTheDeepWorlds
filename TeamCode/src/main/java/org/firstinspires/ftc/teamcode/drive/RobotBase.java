@@ -73,7 +73,8 @@ public abstract class RobotBase extends MecanumDrive {
     public final Limelight3A limelight;
     public static LimelightConfig LLConfig = new LimelightConfig(640, 480,
             -30, 54,41,
-            7.5,6.0,14.00); //ROBOT 5 MEASUREMENTS
+            7.5,6.0,14.00,
+            0, 0); //ROBOT 5 MEASUREMENTS
     private final LimelightSampleDetector limelightSampleDetector;
 
     //Sensors

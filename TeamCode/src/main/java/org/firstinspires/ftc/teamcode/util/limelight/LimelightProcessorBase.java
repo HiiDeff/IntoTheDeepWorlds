@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode.util.limelight;
 
+import android.util.Log;
+
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class LimelightProcessorBase {
@@ -24,7 +27,10 @@ public abstract class LimelightProcessorBase {
         if(result!=null){
             double[] pythonResult = result.getPythonOutput();
             if(pythonResult != null && pythonResult[0]>0) {
+                Log.i("pixel coordinates array", Arrays.toString(pythonResult));
+                Log.i("pixel coordinates cnt", pythonResult[0]+"");
                 Coordinates pixelCoordinates = new Coordinates(pythonResult[1], pythonResult[2]);
+                Log.i("pixel coordinates", pixelCoordinates.getX()+" "+pixelCoordinates.getY());
                 Coordinates normalizedCoordinates = pixelCoordinatesToNormalizedCoordinates(pixelCoordinates);
                 return normalizedPixelToRealWorldCoordinates(normalizedCoordinates, objectCenterHeight);
             }

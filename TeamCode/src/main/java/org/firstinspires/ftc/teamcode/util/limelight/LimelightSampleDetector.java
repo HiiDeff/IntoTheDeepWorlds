@@ -29,10 +29,16 @@ public class LimelightSampleDetector extends LimelightProcessorBase {
         // y dist
         double objectAngleWithHorizontal = pixel.y * (LLConfig.verticalFOV/2.0) + LLConfig.angleWithHorizontal; //pixel.y should be negative if object is lower than center of camera fov
         double yDistInch = (LLConfig.zOffset-pixelHeight) * Math.tan(toRadians(90+objectAngleWithHorizontal));
+
+        yDistInch += (yDistInch-12.0) * LLConfig.errorScalerY;
+
         // x dist
         double yzPlaneProjectedDist = Math.sqrt(yDistInch*yDistInch + (LLConfig.zOffset-pixelHeight)*(LLConfig.zOffset-pixelHeight)); // projected distance on the yz plane
         double xAngleWithObject = pixel.x * (LLConfig.horizontalFOV/2.0);
         double xDistInch = yzPlaneProjectedDist * Math.tan(toRadians(xAngleWithObject));
+
+        xDistInch += (xDistInch) * LLConfig.errorScalerX;
+
 
         // account for Limelight offset to center of robot:
         yDistInch += LLConfig.yOffset;

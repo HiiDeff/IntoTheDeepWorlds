@@ -43,22 +43,33 @@ import java.util.List;
 @Config
 public class Robot1Test extends LinearOpMode {
 
+    // Base
+    public Robot1 robot;
+    private GamePad gamepad;
+    private Task task = null;
+    public MultipleTelemetry multipleTelemetry;
+
+    // Vision
+
+    private LimelightSampleDetector limelightSampleDetector;
     public static LimelightConfig LLConfig = new LimelightConfig(640, 480,
             -30, 54,41,
             7.5,6.0,14.3,
-            0.081081081, 0.081081081); //ROBOT 5 MEASUREMENTS
-    private LimelightSampleDetector limelightSampleDetector;
-
-    public Robot1 robot;
-    private GamePad gamepad;
+            0.081081081, 0.12); //ROBOT 5 MEASUREMENTS
     public static int pipelineNo = 6;
-    public static double distBeforeTurretCenter = 7.0;
-    public static double turretPos = 0.54, pivotPos = 0.71;
-    public static double TURRET_LENGTH_INCH = 5.0;
-    public static double DIFFY_LEFT, DIFFY_RIGHT, deliveryClawPos, intakeClawPos;
+    public static double distBeforeTurretCenter = 7.0, TURRET_LENGTH_INCH = 5.0;
+
+    // Position Tuning
     public static boolean debugMode;
-    private Task task = null;
-    public MultipleTelemetry multipleTelemetry;
+    public static double turretPos = Robot1.TURRET_STRAIGHT,
+            pivotPos = Robot1.INTAKE_PIVOT_VERTICAL,
+            intakeArmPos = Robot1.INTAKE_ARM_BACK,
+            intakeWristPos = Robot1.INTAKE_WRIST_BACK,
+            diffyLeftPos = Robot1.DIFFY_LEFT_FLAT,
+            diffyRightPos = Robot1.DIFFY_RIGHT_FLAT,
+            deliveryClawPos = Robot1.DELIVERY_CLAW_OPEN,
+            intakeClawPos = Robot1.INTAKE_CLAW_OPEN,
+            verticalSlidePower = 0.0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -69,6 +80,7 @@ public class Robot1Test extends LinearOpMode {
 
         robot.limelight.pipelineSwitch(pipelineNo);
         robot.limelight.start();
+        robot.teleOpInit();
 
 //        robot.setHorizontalSlidesPower(0.3);
 
@@ -98,8 +110,11 @@ public class Robot1Test extends LinearOpMode {
             ObjectOrientation orientation = limelightSampleDetector.getObjectOrientation();
             multipleTelemetry.addData("orientation",orientation.toString());
 
-            limelightSampleDetector.updateLimelight();
-            multipleTelemetry.update();
+            multipleTelemetry.addData("vertical slide pos ticks", robot.getVerticalSlidesHeightTicks());
+            multipleTelemetry.addData("vertical slide pos inch", robot.getVerticalSlidesHeightInch());
+            multipleTelemetry.addData("horizontal slide pos ticks", robot.getHorizontalSlideDistTicks());
+
+
 
 
             if(gamepad.onceX()) {
@@ -128,7 +143,8 @@ public class Robot1Test extends LinearOpMode {
                         new SleepTask(500),
                         new ParallelTask(
                                 new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
-                                new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER)
+                                new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
+                                new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT)
                         )
 //                        new ParallelTask(
 //                                new V5HorizontalSlidesTask(robot, -0.5, 1.0, 1500),
@@ -162,16 +178,21 @@ public class Robot1Test extends LinearOpMode {
                 );
             }
             if(debugMode) {
-                robot.diffyLeft.setPosition(DIFFY_LEFT);
-                robot.diffyRight.setPosition(DIFFY_RIGHT);
+                robot.diffyLeft.setPosition(diffyLeftPos);
+                robot.diffyRight.setPosition(diffyRightPos);
                 robot.turret.setPosition(turretPos);
                 robot.intakePivot.setPosition(pivotPos);
                 robot.intakeClaw.setPosition(intakeClawPos);
+                robot.deliveryClaw.setPosition(deliveryClawPos);
+                robot.intakeArm.setPosition(intakeArmPos);
+                robot.intakeWrist.setPosition(intakeWristPos);
+                robot.setVerticalSlidePowerWithoutEncoder(verticalSlidePower);
             }
 
             if(task != null && task.perform())  task = null;
             gamepad.update();
             robot.updateEverything();
+            limelightSampleDetector.updateLimelight();
             multipleTelemetry.update();
         }
         robot.limelight.stop();

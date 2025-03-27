@@ -41,7 +41,7 @@ public class TeleOp1 extends LinearOpMode {
 
     private boolean clawOpen, intakeClawVertical = true, testToggle = false;
 
-    public static double MAX_SLIDE_EXTENSION_INCH = 21.0, VERTICAL_STAND_POWER = 0.2;
+    public static double MAX_SLIDE_EXTENSION_INCH = 21.0, VERTICAL_STAND_POWER = 0.125;
 
     private SensorUpdateThread sensorUpdateThread;
     private ElapsedTime cycleTimer;
@@ -93,7 +93,7 @@ public class TeleOp1 extends LinearOpMode {
         }else if(gp2.dpadDown()) {
             robot.setVerticalSlidePowerWithoutEncoder(-0.5);
         } else if(task==null){
-            robot.setVerticalSlidePowerWithoutEncoder(robot.getVerticalSlidesHeightInch()<1.0?0:VERTICAL_STAND_POWER);
+            robot.setVerticalSlidePowerWithoutEncoder(robot.getVerticalSlidesHeightInch()<2.0?0:VERTICAL_STAND_POWER);
         }
     }
 
@@ -242,22 +242,18 @@ public class TeleOp1 extends LinearOpMode {
                 new ParallelTask(
                         new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN),
                         new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.TRANSFER),
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.TRANSFER)
+                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.TRANSFER),
+                        new IntakeClawTask(robot, IntakeClawTask.Position.CLOSE)
                 ),
                 new ParallelTask(
-                        new SeriesTask(
-                                new SleepTask(300),
-                                new HorizontalSlidesTask(robot, -0.0, 1.0, 1500)
-                        ),
                         new IntakeArmTask(robot, IntakeArmTask.Position.SLIGHTLY_UP),
-                        new IntakeClawTask(robot, IntakeClawTask.Position.CLOSE),
-                        new IntakeWristTask(robot, IntakeWristTask.Position.SLIGHTLY_UP),
-                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
-                        new IntakePivotTask(robot, (robot.isSampleDetected()? IntakePivotTask.Position.VERTICAL_INVERSE : IntakePivotTask.Position.VERTICAL))
+                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT)
                 ),
                 new ParallelTask(
                         new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
-                        new IntakeArmTask(robot, IntakeArmTask.Position.TRANSFER)
+                        new IntakeArmTask(robot, IntakeArmTask.Position.TRANSFER),
+                        new IntakePivotTask(robot, (robot.isSampleDetected()? IntakePivotTask.Position.VERTICAL_INVERSE : IntakePivotTask.Position.VERTICAL)),
+                        new HorizontalSlidesTask(robot, -0.0, 1.0, 1500)
                 ),
                 new ParallelTask(
                         new HorizontalSlidesTask(robot, -2.0, 1.0, 700),

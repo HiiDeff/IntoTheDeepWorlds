@@ -36,8 +36,8 @@ public abstract class RobotBase extends MecanumDrive {
     ///////////////////* CONSTANTS *///////////////////
 
     // Vertical Slides Constants
-    public static double VERTICAL_EXTEND_MIN_IN = -0.2, VERTICAL_EXTEND_MAX_IN = 31.0;
-    public static double VERTICAL_TICKS_PER_INCH = 743.0/23;
+    public static double VERTICAL_EXTEND_MIN_IN = -0.2, VERTICAL_EXTEND_MAX_IN = 30.0; //actually 29
+    public static double VERTICAL_TICKS_PER_INCH = 930.0/28.8;
     public static double VERTICAL_SLIDE_DOWN_POWER_TELEOP = -0.5, VERTICAL_SLIDE_DOWN_POWER_AUTO = -0.7;
 
     // Horizontal Slides Constants
@@ -146,9 +146,8 @@ public abstract class RobotBase extends MecanumDrive {
 
         // Update Constants
 
-        VERTICAL_TICKS_PER_INCH = getVerticalSlidesTicksPerInch();
-        VERTICAL_EXTEND_MAX_IN = getVerticalSlidesMaxIn();
-
+//        VERTICAL_TICKS_PER_INCH = getVerticalSlidesTicksPerInch();
+//        VERTICAL_EXTEND_MAX_IN = getVerticalSlidesMaxIn();
     }
 
 
@@ -277,6 +276,9 @@ public abstract class RobotBase extends MecanumDrive {
     }
     public double getHorizontalSlideDistInch() {
         return ((double) horizontalSlides.getCurrentPosition()) / HORIZONTAL_TICKS_PER_INCH;
+    }
+    public double getHorizontalSlideDistTicks() {
+        return horizontalSlides.getCurrentPosition();
     }
     public double getHorizontalSlideTransferPos() {
         return HORIZONTAL_SLIDE_TRANSFER_POS;

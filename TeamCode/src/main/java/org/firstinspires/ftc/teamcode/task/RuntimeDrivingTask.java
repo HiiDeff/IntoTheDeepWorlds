@@ -22,7 +22,7 @@ public class RuntimeDrivingTask implements Task {
     public boolean perform() {
         if (!started) {
             started = true;
-            action = actioner.trajectory2Action(robot.actionBuilder(robot.localizer.getPose()));
+            action = actioner.trajectory2Action(robot.actionBuilder(robot.pose));
         }
         return !action.run(new TelemetryPacket());
     }

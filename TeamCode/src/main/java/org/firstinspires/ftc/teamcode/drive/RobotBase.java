@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.drive.IntakeSampleState;
 import org.firstinspires.ftc.teamcode.drive.VerticalSlidesPID;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.task.HangTask;
 import org.firstinspires.ftc.teamcode.task.DeliveryClawTask;
 import org.firstinspires.ftc.teamcode.task.DiffyTask;
@@ -23,14 +24,16 @@ import org.firstinspires.ftc.teamcode.task.IntakePivotTask;
 import org.firstinspires.ftc.teamcode.task.IntakeWristTask;
 import org.firstinspires.ftc.teamcode.task.IntakeTurretTask;
 import org.firstinspires.ftc.teamcode.util.Utils;
+import org.firstinspires.ftc.teamcode.util.limelight.Coordinates;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightConfig;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightSampleDetector;
+import org.firstinspires.ftc.teamcode.util.limelight.ObjectOrientation;
 import org.firstinspires.ftc.teamcode.util.pid.PIDCoefficients;
 import org.firstinspires.ftc.teamcode.util.profile.ProfileConstraints;
 import org.firstinspires.ftc.teamcode.util.profile.ServoProfiler;
 
 @Config
-public abstract class RobotBase extends MecanumDrive {
+public abstract class RobotBase extends PinpointDrive {
 
 
     ///////////////////* CONSTANTS *///////////////////
@@ -73,9 +76,10 @@ public abstract class RobotBase extends MecanumDrive {
     public final Limelight3A limelight;
     public static LimelightConfig LLConfig = new LimelightConfig(640, 480,
             -30, 54,41,
-            7.5,6.0,14.00,
-            0, 0); //ROBOT 5 MEASUREMENTS
+            7.5,6.0,14.3,
+            0.081081081, 0.12);
     private final LimelightSampleDetector limelightSampleDetector;
+    private int pipelineNo = 5;
 
     //Sensors
 
@@ -95,7 +99,8 @@ public abstract class RobotBase extends MecanumDrive {
 
 
     public RobotBase(HardwareMap hardwareMap) {
-        super();
+
+        super(hardwareMap, new Pose2d(0.0, 0.0, 0.0));
         this.hardwareMap = hardwareMap;
 
         for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
@@ -139,6 +144,7 @@ public abstract class RobotBase extends MecanumDrive {
         // Limelight:
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelightSampleDetector = new LimelightSampleDetector(limelight, LLConfig);
+        limelight.pipelineSwitch(pipelineNo);
 
         // Color Sensors:
         intakeColorSensor = hardwareMap.get(RevColorSensorV3.class, "intakeColorSensor");
@@ -164,10 +170,13 @@ public abstract class RobotBase extends MecanumDrive {
         setTurretPos(IntakeTurretTask.Position.STRAIGHT);
     }
     public void autoInit() {
-//        setIntakeArmPos(IntakeArmTask.Position.DOWN);
-////        deliveryArm.setPosition(getDeliveryArmServoPosition(DeliveryArmTask.Position.CARRY));
-//        setClawPosition(ClawTask.ClawPosition.OPEN);
-//        swipeStick.setPosition(SwipeStickTask.getTargetPos(SwipeStickTask.Position.IN));
+        setIntakeArmPos(IntakeArmTask.Position.BACK);
+        setIntakeWristPos(IntakeWristTask.Position.TRANSFER);
+        setIntakeClawPos(IntakeClawTask.Position.OPEN);
+        setIntakePivotPos(IntakePivotTask.Position.VERTICAL);
+        setDeliveryClawPos(DeliveryClawTask.Position.OPEN);
+        setDiffyPos(DiffyTask.Position.FLAT);
+        setTurretPos(IntakeTurretTask.Position.STRAIGHT);
     }
 
     public void autoClipInit() {
@@ -181,10 +190,11 @@ public abstract class RobotBase extends MecanumDrive {
 
     public void updateEverything() {
         updateEncoders();
-//        updatePoseEstimate();
+        updatePoseEstimate();
         updateProfilers();
         updatePIDs();
         updateIntakeSampleState();
+//        updateLimelight();
     }
     public void updatePIDs() {
         if(verticalSlidesRunToPosition) {
@@ -353,5 +363,22 @@ public abstract class RobotBase extends MecanumDrive {
     }
     public boolean isHangEngaged(){
         return hangEngaged;
+    }
+
+    ///////////////////* LIMELIGHT UTILS *///////////////////
+    public void startLimelight() {
+        limelight.start();
+    }
+    public void updateLimelight() {
+        limelightSampleDetector.updateLimelight();
+    }
+    public void stopLimelight() {
+        limelight.stop();
+    }
+    public Coordinates getLimelightObjectPosition() {
+        return limelightSampleDetector.getObjectPosition(1.0);
+    }
+    public ObjectOrientation getLimelightObjectOrientation() {
+        return limelightSampleDetector.getObjectOrientation();
     }
 }

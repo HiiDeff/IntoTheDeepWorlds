@@ -193,6 +193,11 @@ public class Robot1Test extends LinearOpMode {
             gamepad.update();
             robot.updateEverything();
             limelightSampleDetector.updateLimelight();
+
+            multipleTelemetry.addData("x", robot.pose.position.x);
+            multipleTelemetry.addData("y", robot.pose.position.y);
+            multipleTelemetry.addData("heading (rad)", robot.pose.heading.toDouble());
+
             multipleTelemetry.update();
         }
         robot.limelight.stop();

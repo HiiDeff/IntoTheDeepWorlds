@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.drive.robot1;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriver;
+import com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriverRR;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -11,7 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.drive.RobotBase;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer;
+import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.task.IntakeClawTask;
 import org.firstinspires.ftc.teamcode.task.HangTask;
 import org.firstinspires.ftc.teamcode.task.DeliveryClawTask;
@@ -42,26 +44,26 @@ public class Robot1 extends RobotBase {
     // Intake Servo Positions
     public static double INTAKE_ARM_DOWN = 0.02,
             INTAKE_ARM_TRANSFER = 0.00,
-            INTAKE_ARM_HOVER = 0.15,
+            INTAKE_ARM_HOVER = 0.10,
             INTAKE_ARM_BACK = 0.3,
             INTAKE_ARM_SLIGHTLY_UP = 0.10;
 
     public static double INTAKE_WRIST_TRANSFER = 0.61,
-            INTAKE_WRIST_HOVER = 0.0,
+            INTAKE_WRIST_HOVER = 0.05,
             INTAKE_WRIST_DOWN = 0.04,
             INTAKE_WRIST_BACK = 0.62,
             INTAKE_WRIST_SLIGHTLY_UP = 0.48;
     public static double TURRET_DROP_OFF = 1.0,
-            TURRET_STRAIGHT = 0.855,
-            TURRET_LEFT_45_DEG = 0.71,
-            TURRET_RIGHT_45_DEG = 0.96;
+            TURRET_STRAIGHT = 0.83,
+            TURRET_LEFT_45_DEG = 0.665,
+            TURRET_RIGHT_45_DEG = 0.98;
     public static double INTAKE_CLAW_CLOSE = 0.29,//0.22,
             INTAKE_CLAW_OPEN = 0.35;//0.5;
-    public static double INTAKE_PIVOT_TILTED_LEFT = 0.86,//0.40,
-            INTAKE_PIVOT_TILTED_RIGHT = 0.53,//0.11,
-            INTAKE_PIVOT_HORIZONTAL = 0.34,//0.60,
-            INTAKE_PIVOT_VERTICAL = 0.68,//0.27,
-            INTAKE_PIVOT_VERTICAL_INVERSE = 0.02;
+    public static double INTAKE_PIVOT_TILTED_LEFT = 0.81,//0.40,
+            INTAKE_PIVOT_TILTED_RIGHT = 0.49,//0.11,
+            INTAKE_PIVOT_HORIZONTAL = 0.32,//0.60,
+            INTAKE_PIVOT_VERTICAL = 0.66,//0.27,
+            INTAKE_PIVOT_VERTICAL_INVERSE = 0.0;
     public static double DIFFY_LEFT_TRANSFER = 0.605, DIFFY_RIGHT_TRANSFER = 0.52,
             DIFFY_LEFT_FLAT = 0.615, DIFFY_RIGHT_FLAT = 0.74,
             DIFFY_LEFT_UP = 0.56, DIFFY_RIGHT_UP = 0.57,
@@ -81,29 +83,29 @@ public class Robot1 extends RobotBase {
         super(hardwareMap);
 
         setDriveParams();
-        super.init(hardwareMap, LocalizerMode.PINPOINT, new Pose2d(0, 0, 0));
+        init(hardwareMap);
     }
 
     private void setDriveParams() {
 
         MecanumDrive.Params p = MecanumDrive.PARAMS;
         p.logoFacingDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
-        p.usbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+        p.usbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
 
         // drive model parameters
         p.inPerTick = 1.0;
-        p.lateralInPerTick = 0.851106864; // p.inPerTick;
-        p.trackWidthTicks = 14.585145842107918;
+        p.lateralInPerTick = 1.213675706866705135603000577034; // p.inPerTick;
+        p.trackWidthTicks = 14.245478953115196;
 
         // feedforward parameters (in tick units)
-        p.kS = 1.581030305278766;
-        p.kV = 0.1325846626043403;
+        p.kS = 1.2800645469636986;
+        p.kV = 0.13301959837487504;
         p.kA = 0.03;
 
         // path profile parameters (in inches)
         p.maxWheelVel = 60;
-        p.minProfileAccel = -30; //TODO change this to -40
-        p.maxProfileAccel = 50; //TODO change this to 60
+        p.minProfileAccel = -40;
+        p.maxProfileAccel = 60;
 
         // turn profile parameters (in radians)
         p.maxAngVel = Math.PI; // shared with path
@@ -111,16 +113,22 @@ public class Robot1 extends RobotBase {
 
         // path controller gains
         p.axialGain = 5.0;
-        p.lateralGain = 7.0;
-        p.headingGain = 8.0; // shared with turn
+        p.lateralGain = 5.0;
+        p.headingGain = 3.0; // shared with turn
 
         p.axialVelGain = 0.0;
         p.lateralVelGain = 0.0;
         p.headingVelGain = 0.0; // shared with turn
 
-        PinpointLocalizer.Params localizerParams = PinpointLocalizer.PARAMS;
-        localizerParams.perpXTicks = 6.375;
-        localizerParams.parYTicks = -0.15;
+
+        PinpointDrive.Params pinpointParams = PinpointDrive.PARAMS;
+        pinpointParams.xOffset = 3.1091754774386136;
+        pinpointParams.yOffset = 1.9439441107387374;
+
+        pinpointParams.encoderResolution = GoBildaPinpointDriverRR.goBILDA_4_BAR_POD;
+
+        pinpointParams.xDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
+        pinpointParams.yDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
     }
 
     @Override

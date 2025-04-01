@@ -17,24 +17,24 @@ public class TestRobotDeadWheels extends MecanumDrive {
     public static MecanumDrive.Params TRUE_PARAMS = new MecanumDrive.Params();
 
     public TestRobotDeadWheels(HardwareMap hardwareMap) {
-        super();
+        super(new Pose2d(0, 0, 0));
         setDriveParams();
-        super.init(hardwareMap, LocalizerMode.TWO_DEAD_WHEEL, new Pose2d(0, 0, 0));
+        super.initWithLocalizer(hardwareMap, LocalizerMode.TWO_DEAD_WHEEL);
     }
 
     public static void setDriveParams() {
-        TRUE_PARAMS.logoFacingDirection = RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD;
-        TRUE_PARAMS.usbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+        TRUE_PARAMS.logoFacingDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
+        TRUE_PARAMS.usbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 
         // drive model parameters
-        TRUE_PARAMS.inPerTick = 0.0022;
-        TRUE_PARAMS.lateralInPerTick = TRUE_PARAMS.inPerTick; // 0.0016824700252845181;
-        TRUE_PARAMS.trackWidthTicks = 5868;
+        TRUE_PARAMS.inPerTick = 0.00198392652123995407577497129736;
+        TRUE_PARAMS.lateralInPerTick = 0.0013201097409470458; //0.0013275715492669714; // 0.0016824700252845181;
+        TRUE_PARAMS.trackWidthTicks = 6999.207445758258;
 
         // feedforward parameters (in tick units)
-        TRUE_PARAMS.kS = 0.9357083339066259;
-        TRUE_PARAMS.kV = 0.0003160657851158692;
-        TRUE_PARAMS.kA = 0.00007;
+        TRUE_PARAMS.kS = 1.201743834589251;
+        TRUE_PARAMS.kV = 0.0002683471418159556;
+        TRUE_PARAMS.kA = 0.000045;
 
         // path profile parameters (in inches)
         TRUE_PARAMS.maxWheelVel = 50;
@@ -46,9 +46,9 @@ public class TestRobotDeadWheels extends MecanumDrive {
         TRUE_PARAMS.maxAngAccel = Math.PI;
 
         // path controller gains
-        TRUE_PARAMS.axialGain = 10.0;
-        TRUE_PARAMS.lateralGain = 8.0;
-        TRUE_PARAMS.headingGain = 8.0; // shared with turn
+        TRUE_PARAMS.axialGain = 5.0;
+        TRUE_PARAMS.lateralGain = 8.0; //10
+        TRUE_PARAMS.headingGain = 8.0; // shared with turn //4
 
         TRUE_PARAMS.axialVelGain = 0.0;
         TRUE_PARAMS.lateralVelGain = 0.0;
@@ -56,8 +56,8 @@ public class TestRobotDeadWheels extends MecanumDrive {
 
         PARAMS = TRUE_PARAMS;
 
-        LOCALIZER_PARAMS.perpXTicks = 6.375;
-        LOCALIZER_PARAMS.parYTicks = -0.15;
+        LOCALIZER_PARAMS.perpXTicks = -1166.809201791706;
+        LOCALIZER_PARAMS.parYTicks = 556.7862908481188;
         TwoDeadWheelLocalizer.PARAMS = LOCALIZER_PARAMS;
     }
 }

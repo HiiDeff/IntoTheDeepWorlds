@@ -37,7 +37,7 @@ public class IntakeTurretTask extends TimedTask {
             double currPos = servo.getPosition();
             double targetPos = position!=null? robot.getTurretPosition(position):exactPosition;
             setFinishTimeMillis(Utils.getEstimatedServoTime(RPM, MAX_ROTATION_DEGREE,
-                    targetPos - currPos));
+                    targetPos - currPos)/2);
             servo.setPosition(targetPos);
             started = true;
         }

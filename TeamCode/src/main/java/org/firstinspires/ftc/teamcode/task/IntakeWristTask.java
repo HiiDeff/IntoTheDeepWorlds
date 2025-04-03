@@ -26,7 +26,7 @@ public class IntakeWristTask extends TimedTask {
             double currPos = robot.intakeWrist.getPosition();
             double targetPos = robot.getIntakeWristPosition(position);
             setFinishTimeMillis(Utils.getEstimatedServoTime(RPM, MAX_ROTATION_DEGREE,
-                    targetPos - currPos));
+                    targetPos - currPos)/2);
 //            Log.i("posDiff",""+(targetPos-currPos));
             robot.intakeWrist.setPosition(targetPos);
             started = true;

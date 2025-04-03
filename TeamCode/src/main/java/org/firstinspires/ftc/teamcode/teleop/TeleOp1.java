@@ -8,9 +8,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.auto.conditions.SampleStateCondition;
 import org.firstinspires.ftc.teamcode.drive.RobotFactory;
 import org.firstinspires.ftc.teamcode.drive.SensorUpdateThread;
 import org.firstinspires.ftc.teamcode.drive.robot1.Robot1;
+import org.firstinspires.ftc.teamcode.task.DecisionTask;
 import org.firstinspires.ftc.teamcode.task.ParallelTask;
 import org.firstinspires.ftc.teamcode.task.SeriesTask;
 import org.firstinspires.ftc.teamcode.task.SleepTask;
@@ -252,7 +254,11 @@ public class TeleOp1 extends LinearOpMode {
                 new ParallelTask(
                         new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
                         new IntakeArmTask(robot, IntakeArmTask.Position.TRANSFER),
-                        new IntakePivotTask(robot, (robot.isSampleDetected()? IntakePivotTask.Position.VERTICAL_INVERSE : IntakePivotTask.Position.VERTICAL)),
+                        new DecisionTask(
+                                new SampleStateCondition(robot),
+                                new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL_INVERSE),
+                                new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL)
+                        ),
                         new HorizontalSlidesTask(robot, -0.0, 1.0, 1500)
                 ),
                 new ParallelTask(
@@ -270,7 +276,7 @@ public class TeleOp1 extends LinearOpMode {
                                                     new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
                                                     new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
                                                     new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL),
-                                                    new VerticalSlidesTask(robot, 30.0,1.0,2000)
+                                                    new VerticalSlidesTask(robot, 29.0,1.0,2000)
                                             )
                                     )
                             )

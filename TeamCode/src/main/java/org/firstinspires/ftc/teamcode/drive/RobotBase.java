@@ -40,7 +40,7 @@ public abstract class RobotBase extends PinpointDrive {
 
     // Vertical Slides Constants
     public static double VERTICAL_EXTEND_MIN_IN = -0.2, VERTICAL_EXTEND_MAX_IN = 30.0; //actually 29
-    public static double VERTICAL_TICKS_PER_INCH = 930.0/28.8;
+    public static double VERTICAL_TICKS_PER_INCH = 938.0/29;
     public static double VERTICAL_SLIDE_DOWN_POWER_TELEOP = -0.5, VERTICAL_SLIDE_DOWN_POWER_AUTO = -0.7;
 
     // Horizontal Slides Constants
@@ -174,7 +174,7 @@ public abstract class RobotBase extends PinpointDrive {
         setIntakeWristPos(IntakeWristTask.Position.TRANSFER);
         setIntakeClawPos(IntakeClawTask.Position.OPEN);
         setIntakePivotPos(IntakePivotTask.Position.VERTICAL);
-        setDeliveryClawPos(DeliveryClawTask.Position.OPEN);
+        setDeliveryClawPos(DeliveryClawTask.Position.CLOSE);
         setDiffyPos(DiffyTask.Position.FLAT);
         setTurretPos(IntakeTurretTask.Position.STRAIGHT);
     }
@@ -193,7 +193,7 @@ public abstract class RobotBase extends PinpointDrive {
         updatePoseEstimate();
         updateProfilers();
         updatePIDs();
-        updateIntakeSampleState();
+//        updateIntakeSampleState();
 //        updateLimelight();
     }
     public void updatePIDs() {
@@ -335,8 +335,8 @@ public abstract class RobotBase extends PinpointDrive {
 
     public abstract double getDiffyTargetPos(DiffyTask.WhichDiffy placer, DiffyTask.Position position);
     public void setDiffyPos(DiffyTask.Position position) {
-        DiffyTask.setHangPosition(this, DiffyTask.WhichDiffy.LEFT, position);
-        DiffyTask.setHangPosition(this, DiffyTask.WhichDiffy.RIGHT, position);
+        DiffyTask.setDiffyPosition(this, DiffyTask.WhichDiffy.LEFT, position);
+        DiffyTask.setDiffyPosition(this, DiffyTask.WhichDiffy.RIGHT, position);
     }
 
     ///////////////////* COLOR SENSOR + LIGHTS UTILS *///////////////////

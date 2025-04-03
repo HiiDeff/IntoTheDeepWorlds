@@ -7,25 +7,26 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.drive.RobotBase;
 import org.firstinspires.ftc.teamcode.drive.RobotFactory;
+import org.firstinspires.ftc.teamcode.drive.robot1.Robot1;
 
 @Config
 @Autonomous(name = "SAMPLE Auto")
 public class SampleAutoPath extends SampleAuto {
 
     public static Pose2d
-            preloadDeliverPos = new Pose2d(2.7589, 21.7425, -0.3637),
-            sample1IntakePos = new Pose2d(6.3732, 17.8836, -0.2982),
-            sample1DeliverPos = new Pose2d(4.2454, 22.7485, -0.18),
-            sample2IntakePos = new Pose2d(6.7833, 21.8209, -0.1044),
+            preloadDeliverPos = new Pose2d(2.2589, 22.2425, -0.3637),
+            sample1IntakePos = new Pose2d(5.6732, 17.8836, -0.2982),
+            sample1DeliverPos = new Pose2d(1.6785, 21.671, -0.452),
+            sample2IntakePos = new Pose2d(5.4798, 17.2887, -0.02),
             sample2DeliverPos = new Pose2d(0.1476, 22.103, -0.7399),
-            sample3IntakePos = new Pose2d(16.9688, 11.0805, 0.6222),
-            sample3DeliverPos = new Pose2d(1.4657, 22.2228, -0.6653),
+            sample3IntakePos = new Pose2d(13.2138, 15.2473, 0.7038),
+            sample3DeliverPos = new Pose2d(0.4657, 22.2228, -0.6653),
             submersibleCyclePos = new Pose2d(54.5475, -1.3017, -Math.PI/2),
             cycleDeliverPos = new Pose2d(1.8764, 21.3275, -0.4574);
 
     @Override
     protected RobotBase createRobot(HardwareMap hardwareMap) {
-        return (RobotBase) RobotFactory.createRobot(hardwareMap);
+        return (Robot1) RobotFactory.createRobot(hardwareMap);
     }
 
     @Override

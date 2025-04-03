@@ -36,7 +36,7 @@ public class Robot1 extends RobotBase {
     public static double VERTICAL_TICKS_PER_INCH  = 930.0/28.8, VERTICAL_EXTEND_MAX_INCH = 29;
 
     // PID + Profile Constraints
-    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.015, 0.0, 0.0,0.22); // new PIDCoefficients(0.3, 1.0, 0.006, 0.0, 0.0,0.16); //0.07 min ff, 0.37 = max ff, so do
+    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.005, 0.0, 0.0,0.22); // new PIDCoefficients(0.3, 1.0, 0.006, 0.0, 0.0,0.16); //0.07 min ff, 0.37 = max ff, so do
     //min stand power = 0.1, max 0.33
 
     public static ProfileConstraints DELIVERY_ARM_CONSTRAINTS = new ProfileConstraints(10, 12, 16);
@@ -66,7 +66,7 @@ public class Robot1 extends RobotBase {
             INTAKE_PIVOT_VERTICAL_INVERSE = 0.0;
     public static double DIFFY_LEFT_TRANSFER = 0.605, DIFFY_RIGHT_TRANSFER = 0.52,
             DIFFY_LEFT_FLAT = 0.615, DIFFY_RIGHT_FLAT = 0.74,
-            DIFFY_LEFT_UP = 0.56, DIFFY_RIGHT_UP = 0.57,
+            DIFFY_LEFT_UP = 0.54, DIFFY_RIGHT_UP = 0.58,
             DIFFY_LEFT_CLIP = 0.605, DIFFY_RIGHT_CLIP = 0.515,
             DIFFY_LEFT_DELIVER = 0.52, DIFFY_RIGHT_DELIVER = 0.60;
 

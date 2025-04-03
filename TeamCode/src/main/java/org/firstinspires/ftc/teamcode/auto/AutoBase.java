@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import android.util.Log;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -50,18 +52,22 @@ public abstract class AutoBase extends LinearOpMode {
         sensorUpdateThread = new SensorUpdateThread(robot);
         sensorUpdateThread.start();
 
-        robot.startLimelight();
+//        robot.startLimelight();
+
+        ElapsedTime cycleTimer = new ElapsedTime();
 
         boolean done = false;
         while (opModeIsActive() && !done && task != null) {
+
             robot.updateEverything();
-            robot.updateLimelight();
+//            robot.updateLimelight();
             if(timeToFinish() && state != AutoState.FINISH) {
                 task.cancel();
                 task = createFinishTask();
             } else if(task.perform()) {
                 if(hasSpikeMarksLeft()) {
                     autoStates.setSpikeMarkNumber(autoStates.getSpikeMarkNumber() + 1);
+                    Log.i("spike mark number", ""+autoStates.getSpikeMarkNumber());
                     task = createSpikeMarkTask();
                 } else if(hasTimeForOneMoreCycle()) {
                     autoStates.setCycleNumber(autoStates.getCycleNumber() + 1);
@@ -77,10 +83,13 @@ public abstract class AutoBase extends LinearOpMode {
             telemetry.addData("x", robot.pose.position.x);
             telemetry.addData("y", robot.pose.position.y);
             telemetry.update();
+
+            Log.i("edbug loop times", cycleTimer.milliseconds()+"");
+            cycleTimer.reset();
         }
 
         sensorUpdateThread.interrupt();
-        robot.stopLimelight();
+//        robot.stopLimelight();
     }
 
     private boolean timeToFinish() {

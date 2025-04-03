@@ -32,7 +32,7 @@ public class IntakeArmTask extends TimedTask {
             double currPos = servo.getPosition();
             double targetPos = robot.getIntakeArmPosition(position);
             setFinishTimeMillis(Utils.getEstimatedServoTime(RPM, MAX_ROTATION_DEGREE,
-                    targetPos - currPos));
+                    targetPos - currPos)/2);
             servo.setPosition(targetPos);
             started = true;
         }

@@ -5,7 +5,10 @@ import android.util.Log;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public abstract class LimelightProcessorBase {
@@ -13,6 +16,8 @@ public abstract class LimelightProcessorBase {
     protected final Limelight3A limelight;
     protected final LimelightConfig LLConfig;
     protected LLResult result = null;
+    protected double[] pythonResult = {0};
+    protected List<Coordinates> sortedCoordinates;
 
     public LimelightProcessorBase(Limelight3A limelight, LimelightConfig LLConfig) {
         this.limelight = limelight;
@@ -21,42 +26,31 @@ public abstract class LimelightProcessorBase {
 
     public synchronized void updateLimelight() {
         result = limelight.getLatestResult();
+        if(result!=null) pythonResult = result.getPythonOutput();
+        else pythonResult = new double[] {0};
     }
 
-    public synchronized Coordinates getObjectPosition(double objectCenterHeight) {
-        if(result!=null){
-            double[] pythonResult = result.getPythonOutput();
-            if(pythonResult != null && pythonResult[0]>0) {
-                Log.i("pixel coordinates array", Arrays.toString(pythonResult));
-                Log.i("pixel coordinates cnt", pythonResult[0]+"");
-                Coordinates pixelCoordinates = new Coordinates(pythonResult[1], pythonResult[2]);
-                Log.i("pixel coordinates", pixelCoordinates.getX()+" "+pixelCoordinates.getY());
-                Coordinates normalizedCoordinates = pixelCoordinatesToNormalizedCoordinates(pixelCoordinates);
-                return normalizedPixelToRealWorldCoordinates(normalizedCoordinates, objectCenterHeight);
-            }
-//            List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
-//            LLResultTypes.ColorResult firstResult = colorResults.get(0);
-//            Coordinates pixelCoordinates = new Coordinates(firstResult.getTargetXPixels(), firstResult.getTargetYPixels());
-//            Coordinates normalizedCoordinates = pixelCoordinatesToNormalizedCoordinates(pixelCoordinates);
-//            return normalizedPixelToRealWorldCoordinates(normalizedCoordinates, objectCenterHeight);
+    public synchronized void sortCoordinates() {
+        List<Coordinates> normalizedCoordinates = pythonResultToNormalized(pythonResult);
+        List<Coordinates> realWorldCoordinates = normalizedToRealWorld(normalizedCoordinates);
+        sortedCoordinates = sortByClosestX(realWorldCoordinates);
+    }
+
+    public synchronized Coordinates getObjectPosition() {
+        if(sortedCoordinates.size()>0) {
+            return sortedCoordinates.get(0);
         }
-        return new Coordinates(10, 0);
+        else {
+            return new Coordinates(-1, -1);
+        }
     }
     public synchronized ObjectOrientation getObjectOrientation() {
-        if(result!=null) {
-            double[] pythonResult = result.getPythonOutput();
-            if(pythonResult != null && pythonResult[0]>0) {
-                double angle = pythonResult[3];
-                return getOrientationFromAngle(angle);
-            }
-//            List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
-//            double[] test = result.getPythonOutput();
-//            LLResultTypes.ColorResult firstResult = colorResults.get(0);
-//            List<List<Double>> corners = firstResult.getTargetCorners();
-//            double angle = calcObjectAngleDegrees(corners);
-//            return getOrientationFromAngle(angle);
+        if(sortedCoordinates.size()>0) {
+            return getOrientationFromAngle(sortedCoordinates.get(0).getAngle());
         }
-        return ObjectOrientation.VERTICAL;
+        else {
+            return ObjectOrientation.VERTICAL;
+        }
     }
 
     public synchronized LLResult getLLResult() {
@@ -79,12 +73,40 @@ public abstract class LimelightProcessorBase {
 
     //receives normalized pixel coordinates as input
     //returns x, y, z, and angle of object in inches and radians. Right (x), forwards (y), and up (z) are positive.
-    protected abstract Coordinates normalizedPixelToRealWorldCoordinates(Coordinates pixel, double pixelHeight);
-    //receives LLResult.getTargetCorners() as input
-    protected abstract double calcObjectAngleDegrees(List<List<Double>> targetCorners);
+    protected abstract Coordinates normalizedPixelToRealWorldCoordinates(Coordinates pixel);
     protected abstract ObjectOrientation getOrientationFromAngle(double angle);
 
     protected double toRadians(double angDeg) {
         return Math.toRadians(angDeg);
+    }
+    private List<Coordinates> sortByClosestX(List<Coordinates> realWorldCoordinates) {
+        Collections.sort(realWorldCoordinates, new closestComparator());
+        return realWorldCoordinates;
+    }
+    private class closestComparator implements Comparator<Coordinates> {
+        @Override
+        public int compare(Coordinates o1, Coordinates o2) {
+            double comp = Math.abs(o1.getX()) - Math.abs(o2.getX());
+            if(comp>0) return 1;
+            else if(comp<0) return -1;
+            else return 0;
+        }
+    }
+    private List<Coordinates> normalizedToRealWorld(List<Coordinates> normalizedCoordinates) {
+        List<Coordinates> realWorld = new ArrayList<>();
+        for(Coordinates i: normalizedCoordinates) {
+            realWorld.add(normalizedPixelToRealWorldCoordinates(i));
+        }
+        return realWorld;
+    }
+    private List<Coordinates> pythonResultToNormalized(double[] pythonResult) {
+        List<Coordinates> normalized = new ArrayList<>();
+        if(pythonResult.length<=0) return normalized;
+        for(int i=1; i<pythonResult[0]*3+1; i+=3){
+            if(i+2>=pythonResult.length) break;
+            Coordinates cur = new Coordinates(pythonResult[i], pythonResult[i+1], pythonResult[i+2]);
+            normalized.add(pixelCoordinatesToNormalizedCoordinates(cur));
+        }
+        return normalized;
     }
 }

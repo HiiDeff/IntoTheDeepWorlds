@@ -1,15 +1,10 @@
 package org.firstinspires.ftc.teamcode.drive.robot1;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriver;
 import com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriverRR;
-import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.drive.RobotBase;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -17,13 +12,11 @@ import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.task.IntakeClawTask;
 import org.firstinspires.ftc.teamcode.task.HangTask;
 import org.firstinspires.ftc.teamcode.task.DeliveryClawTask;
-import org.firstinspires.ftc.teamcode.task.DiffyTask;
+import org.firstinspires.ftc.teamcode.task.DeliveryTask;
 import org.firstinspires.ftc.teamcode.task.IntakeArmTask;
-import org.firstinspires.ftc.teamcode.task.IntakeClawTask;
 import org.firstinspires.ftc.teamcode.task.IntakePivotTask;
 import org.firstinspires.ftc.teamcode.task.IntakeWristTask;
 import org.firstinspires.ftc.teamcode.task.IntakeTurretTask;
-import org.firstinspires.ftc.teamcode.util.Utils;
 import org.firstinspires.ftc.teamcode.util.pid.PIDCoefficients;
 import org.firstinspires.ftc.teamcode.util.profile.ProfileConstraints;
 
@@ -64,11 +57,11 @@ public class Robot1 extends RobotBase {
             INTAKE_PIVOT_HORIZONTAL = 0.32,//0.60,
             INTAKE_PIVOT_VERTICAL = 0.66,//0.27,
             INTAKE_PIVOT_VERTICAL_INVERSE = 0.0;
-    public static double DIFFY_LEFT_TRANSFER = 0.605, DIFFY_RIGHT_TRANSFER = 0.52,
-            DIFFY_LEFT_FLAT = 0.615, DIFFY_RIGHT_FLAT = 0.74,
-            DIFFY_LEFT_UP = 0.54, DIFFY_RIGHT_UP = 0.58,
-            DIFFY_LEFT_CLIP = 0.605, DIFFY_RIGHT_CLIP = 0.515,
-            DIFFY_LEFT_DELIVER = 0.52, DIFFY_RIGHT_DELIVER = 0.60;
+    public static double DELIVERY_LEFT_TRANSFER = 0.605, DELIVERY_RIGHT_TRANSFER = 0.52,
+            DELIVERY_LEFT_FLAT = 0.615, DELIVERY_RIGHT_FLAT = 0.74,
+            DELIVERY_LEFT_UP = 0.54, DELIVERY_RIGHT_UP = 0.58,
+            DELIVERY_LEFT_CLIP = 0.605, DELIVERY_RIGHT_CLIP = 0.515,
+            DELIVERY_LEFT_DELIVER = 0.52, DELIVERY_RIGHT_DELIVER = 0.60;
 
     public static double DELIVERY_CLAW_OPEN = 0.6, DELIVERY_CLAW_CLOSE = 0.3;
 
@@ -220,34 +213,34 @@ public class Robot1 extends RobotBase {
     }
 
     @Override
-    public double getDiffyTargetPos(DiffyTask.WhichDiffy placer, DiffyTask.Position position) {
-        if(placer == DiffyTask.WhichDiffy.LEFT) {
+    public double getDeliveryTargetPos(DeliveryTask.WhichDelivery placer, DeliveryTask.Position position) {
+        if(placer == DeliveryTask.WhichDelivery.LEFT) {
             switch(position) {
                 case TRANSFER:
-                    return DIFFY_LEFT_TRANSFER;
+                    return DELIVERY_LEFT_TRANSFER;
                 case FLAT:
-                    return DIFFY_LEFT_FLAT;
+                    return DELIVERY_LEFT_FLAT;
                 case UP:
-                    return DIFFY_LEFT_UP;
+                    return DELIVERY_LEFT_UP;
                 case CLIP:
-                    return DIFFY_LEFT_CLIP;
+                    return DELIVERY_LEFT_CLIP;
                 case DELIVER:
                 default:
-                    return DIFFY_LEFT_DELIVER;
+                    return DELIVERY_LEFT_DELIVER;
             }
         }else {
             switch(position) {
                 case TRANSFER:
-                    return DIFFY_RIGHT_TRANSFER;
+                    return DELIVERY_RIGHT_TRANSFER;
                 case FLAT:
-                    return DIFFY_RIGHT_FLAT;
+                    return DELIVERY_RIGHT_FLAT;
                 case UP:
-                    return DIFFY_RIGHT_UP;
+                    return DELIVERY_RIGHT_UP;
                 case CLIP:
-                    return DIFFY_RIGHT_CLIP;
+                    return DELIVERY_RIGHT_CLIP;
                 case DELIVER:
                 default:
-                    return DIFFY_RIGHT_DELIVER;
+                    return DELIVERY_RIGHT_DELIVER;
             }
         }
     }

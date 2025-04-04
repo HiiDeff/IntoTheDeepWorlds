@@ -8,11 +8,9 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 
 import org.firstinspires.ftc.teamcode.auto.AutoBase;
 import org.firstinspires.ftc.teamcode.auto.conditions.SampleStateCondition;
-import org.firstinspires.ftc.teamcode.task.ConditionalTask;
 import org.firstinspires.ftc.teamcode.task.DecisionTask;
 import org.firstinspires.ftc.teamcode.task.DeliveryClawTask;
-import org.firstinspires.ftc.teamcode.task.DiffyTask;
-import org.firstinspires.ftc.teamcode.task.HangTask;
+import org.firstinspires.ftc.teamcode.task.DeliveryTask;
 import org.firstinspires.ftc.teamcode.task.HorizontalSlidesTask;
 import org.firstinspires.ftc.teamcode.task.IntakeArmTask;
 import org.firstinspires.ftc.teamcode.task.IntakeClawTask;
@@ -32,6 +30,7 @@ public abstract class SampleAuto extends AutoBase {
     public static int verticalSlidesDelay = 500;
     public static int DELIVER_DRIVING_SPEED = 20, DELIVER_CLAW_DELAY = 100, INTAKE_DELAY = 100;
     public static double DELIVERY_HEIGHT_INCH = 28.0;
+    public static int BUCKET_TO_SUB_START_TANGENT_DEG = -20, BUCKET_TO_SUB_END_TANGENT_DEG = -30;
 
     @Override
     protected Task createStartTask() {
@@ -47,8 +46,8 @@ public abstract class SampleAuto extends AutoBase {
                                 }
                         ),
                         new VerticalSlidesTask(robot, DELIVERY_HEIGHT_INCH, 1.0, 500),
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.UP),
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.UP),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.UP),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.UP),
                         new HorizontalSlidesTask(robot, 20.3,1.0,800),
                         new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
                         new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
@@ -59,8 +58,8 @@ public abstract class SampleAuto extends AutoBase {
         );
         task.add(
                 new ParallelTask(
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.DELIVER),
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.DELIVER),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.DELIVER),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.DELIVER),
                         new SeriesTask(
                                 new SleepTask(DELIVER_CLAW_DELAY),
                                 new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
@@ -88,8 +87,8 @@ public abstract class SampleAuto extends AutoBase {
         Log.i("spike mark number", spikeMarkNumber+"");
         task.add(
                 new ParallelTask(
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.TRANSFER),
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.TRANSFER),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.TRANSFER),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.TRANSFER),
                         new VerticalSlidesTask(robot, 0.0,1.0,500),
                         new SeriesTask(
                                 new ParallelTask(
@@ -141,8 +140,8 @@ public abstract class SampleAuto extends AutoBase {
                                                 new IntakeClawTask(robot, IntakeClawTask.Position.OPEN)
                                         ),
                                         new ParallelTask(
-                                                new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.UP),
-                                                new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.UP),
+                                                new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.UP),
+                                                new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.UP),
                                                 new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
                                                 new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
                                                 new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
@@ -158,8 +157,8 @@ public abstract class SampleAuto extends AutoBase {
                     new ParallelTask(
                             new SeriesTask(
                                     new ParallelTask(
-                                            new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.DELIVER),
-                                            new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.DELIVER),
+                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.DELIVER),
+                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.DELIVER),
                                             new SeriesTask(
                                                     new SleepTask(DELIVER_CLAW_DELAY),
                                                     new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
@@ -188,8 +187,8 @@ public abstract class SampleAuto extends AutoBase {
                     new ParallelTask(
                             new SeriesTask(
                                     new ParallelTask(
-                                            new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.DELIVER),
-                                            new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.DELIVER),
+                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.DELIVER),
+                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.DELIVER),
                                             new SeriesTask(
                                                     new SleepTask(DELIVER_CLAW_DELAY),
                                                     new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
@@ -199,7 +198,10 @@ public abstract class SampleAuto extends AutoBase {
                                             robot,
                                             builder -> {
                                                 Pose2d pos = getSubmersibleCyclePos();
-                                                return builder.strafeToLinearHeading(pos.position, pos.heading, new TranslationalVelConstraint(60)).build();
+                                                return builder
+                                                        .setTangent(Math.toRadians(BUCKET_TO_SUB_START_TANGENT_DEG))
+                                                        .splineToSplineHeading(pos, Math.toRadians(BUCKET_TO_SUB_END_TANGENT_DEG), new TranslationalVelConstraint(60))
+                                                        .build();
                                             }
                                     )
                             ),
@@ -226,7 +228,10 @@ public abstract class SampleAuto extends AutoBase {
                         robot,
                         builder -> {
                             Pose2d pos = getCycleDeliverPos();
-                            return builder.strafeToLinearHeading(pos.position, pos.heading, new TranslationalVelConstraint(60)).build();
+                            return builder
+                                    .setTangent(Math.toRadians(BUCKET_TO_SUB_END_TANGENT_DEG+180))
+                                    .splineToSplineHeading(pos, Math.toRadians(BUCKET_TO_SUB_START_TANGENT_DEG+180), new TranslationalVelConstraint(60))
+                                    .build();
                         }
                 )
         );
@@ -235,7 +240,10 @@ public abstract class SampleAuto extends AutoBase {
                         robot,
                         builder -> {
                             Pose2d pos = getSubmersibleCyclePos();
-                            return builder.strafeToLinearHeading(pos.position, pos.heading, new TranslationalVelConstraint(60)).build();
+                            return builder
+                                    .setTangent(Math.toRadians(BUCKET_TO_SUB_START_TANGENT_DEG))
+                                    .splineToSplineHeading(pos, Math.toRadians(BUCKET_TO_SUB_END_TANGENT_DEG), new TranslationalVelConstraint(60))
+                                    .build();
                         }
                 )
         );

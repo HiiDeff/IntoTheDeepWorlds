@@ -5,19 +5,14 @@ import android.util.Log;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.drive.RobotBase;
 import org.firstinspires.ftc.teamcode.drive.RobotFactory;
 import org.firstinspires.ftc.teamcode.drive.robot1.Robot1;
 import org.firstinspires.ftc.teamcode.task.DeliveryClawTask;
-import org.firstinspires.ftc.teamcode.task.DiffyTask;
+import org.firstinspires.ftc.teamcode.task.DeliveryTask;
 import org.firstinspires.ftc.teamcode.task.HorizontalSlidesTask;
 import org.firstinspires.ftc.teamcode.task.IntakeArmTask;
 import org.firstinspires.ftc.teamcode.task.IntakeClawTask;
@@ -25,7 +20,6 @@ import org.firstinspires.ftc.teamcode.task.IntakePivotTask;
 import org.firstinspires.ftc.teamcode.task.IntakeTurretTask;
 import org.firstinspires.ftc.teamcode.task.IntakeWristTask;
 import org.firstinspires.ftc.teamcode.task.ParallelTask;
-import org.firstinspires.ftc.teamcode.task.RuntimeDrivingTask;
 import org.firstinspires.ftc.teamcode.task.SeriesTask;
 import org.firstinspires.ftc.teamcode.task.SleepTask;
 import org.firstinspires.ftc.teamcode.task.Task;
@@ -33,11 +27,8 @@ import org.firstinspires.ftc.teamcode.util.GamePad;
 import org.firstinspires.ftc.teamcode.util.Utils;
 import org.firstinspires.ftc.teamcode.util.limelight.Coordinates;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightConfig;
-import org.firstinspires.ftc.teamcode.util.limelight.LimelightProcessorBase;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightSampleDetector;
 import org.firstinspires.ftc.teamcode.util.limelight.ObjectOrientation;
-
-import java.util.List;
 
 @TeleOp(name = "Robot 1 Test w/ Limelight", group = "Test")
 @Config
@@ -65,8 +56,8 @@ public class Robot1Test extends LinearOpMode {
             pivotPos = Robot1.INTAKE_PIVOT_VERTICAL,
             intakeArmPos = Robot1.INTAKE_ARM_BACK,
             intakeWristPos = Robot1.INTAKE_WRIST_BACK,
-            diffyLeftPos = Robot1.DIFFY_LEFT_FLAT,
-            diffyRightPos = Robot1.DIFFY_RIGHT_FLAT,
+            deliveryLeftPos = Robot1.DELIVERY_LEFT_FLAT,
+            deliveryRightPos = Robot1.DELIVERY_RIGHT_FLAT,
             deliveryClawPos = Robot1.DELIVERY_CLAW_OPEN,
             intakeClawPos = Robot1.INTAKE_CLAW_OPEN,
             verticalSlidePower = 0.0;
@@ -103,7 +94,7 @@ public class Robot1Test extends LinearOpMode {
             multipleTelemetry.addData("Pipeline", "Index: %d, Type: %s",
                     status.getPipelineIndex(), status.getPipelineType());
 
-            Coordinates objectPosition = limelightSampleDetector.getObjectPosition(1.0);
+            Coordinates objectPosition = limelightSampleDetector.getObjectPosition();
             multipleTelemetry.addData("objectXPos",objectPosition.x);
             multipleTelemetry.addData("objectYPos",objectPosition.y);
 
@@ -158,8 +149,8 @@ public class Robot1Test extends LinearOpMode {
                 task = new SeriesTask(
                         new ParallelTask(
                                 new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN),
-                                new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.TRANSFER),
-                                new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.TRANSFER)
+                                new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.TRANSFER),
+                                new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.TRANSFER)
                         ),
                         new ParallelTask(
                                 new HorizontalSlidesTask(robot, 0, 1.0, 1500),
@@ -172,14 +163,14 @@ public class Robot1Test extends LinearOpMode {
                         new DeliveryClawTask(robot, DeliveryClawTask.Position.CLOSE),
                         new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
                         new ParallelTask(
-                                new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.FLAT),
-                                new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.FLAT)
+                                new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.FLAT),
+                                new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.FLAT)
                         )
                 );
             }
             if(debugMode) {
-                robot.diffyLeft.setPosition(diffyLeftPos);
-                robot.diffyRight.setPosition(diffyRightPos);
+                robot.deliveryLeft.setPosition(deliveryLeftPos);
+                robot.deliveryRight.setPosition(deliveryRightPos);
                 robot.turret.setPosition(turretPos);
                 robot.intakePivot.setPosition(pivotPos);
                 robot.intakeClaw.setPosition(intakeClawPos);

@@ -21,7 +21,7 @@ public class SampleAutoPath extends SampleAuto {
             sample2DeliverPos = new Pose2d(0.1476, 22.103, -0.7399),
             sample3IntakePos = new Pose2d(13.2138, 15.2473, 0.7038),
             sample3DeliverPos = new Pose2d(0.4657, 22.2228, -0.6653),
-            submersibleCyclePos = new Pose2d(54.5475, -1.3017, -Math.PI/2),
+            submersibleCyclePos = new Pose2d(50.5475, -7.3017, -Math.PI/2),
             cycleDeliverPos = new Pose2d(1.8764, 21.3275, -0.4574);
 
     @Override

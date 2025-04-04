@@ -11,13 +11,10 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.drive.IntakeSampleState;
-import org.firstinspires.ftc.teamcode.drive.VerticalSlidesPID;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.task.HangTask;
 import org.firstinspires.ftc.teamcode.task.DeliveryClawTask;
-import org.firstinspires.ftc.teamcode.task.DiffyTask;
+import org.firstinspires.ftc.teamcode.task.DeliveryTask;
 import org.firstinspires.ftc.teamcode.task.IntakeArmTask;
 import org.firstinspires.ftc.teamcode.task.IntakeClawTask;
 import org.firstinspires.ftc.teamcode.task.IntakePivotTask;
@@ -29,8 +26,6 @@ import org.firstinspires.ftc.teamcode.util.limelight.LimelightConfig;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightSampleDetector;
 import org.firstinspires.ftc.teamcode.util.limelight.ObjectOrientation;
 import org.firstinspires.ftc.teamcode.util.pid.PIDCoefficients;
-import org.firstinspires.ftc.teamcode.util.profile.ProfileConstraints;
-import org.firstinspires.ftc.teamcode.util.profile.ServoProfiler;
 
 @Config
 public abstract class RobotBase extends PinpointDrive {
@@ -61,16 +56,15 @@ public abstract class RobotBase extends PinpointDrive {
     public final DcMotorEx horizontalSlides;
     public final DcMotorEx verticalSlidesLeft, verticalSlidesRight;
     // Servos
-    public final Servo diffyLeft, diffyRight, deliveryClaw, turret, intakeArm, intakePivot, intakeWrist, intakeClaw;
+    public final Servo deliveryLeft, deliveryRight, deliveryClaw, turret, intakeArm, intakePivot, intakeWrist, intakeClaw;
     public final Servo leftHang, rightHang;
-    public final Servo swipeStick;
 
     // Motion PIDs + Profilers
     public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.02, 0.0, 0.0,0.22); // new PIDCoefficients(0.3, 1.0, 0.006, 0.0, 0.0,0.16); //0.07 min ff, 0.37 = max ff, so do
     public final VerticalSlidesPID verticalSlidesPID;
 
     // Lights
-    private final RevBlinkinLedDriver light;
+//    private final RevBlinkinLedDriver light;
 
     // Vision
     public final Limelight3A limelight;
@@ -126,20 +120,19 @@ public abstract class RobotBase extends PinpointDrive {
         verticalSlidesPID = new VerticalSlidesPID(this, VERTICAL_SLIDES_PID_COEFFICIENTS);
 
         // Servos:
-        swipeStick = hardwareMap.get(Servo.class, "swipeStick");
-        diffyLeft = hardwareMap.get(Servo.class, "diffyL");
-        diffyRight = hardwareMap.get(Servo.class, "diffyR");
+        deliveryLeft = hardwareMap.get(Servo.class, "deliveryL");
+        deliveryRight = hardwareMap.get(Servo.class, "deliveryR");
         deliveryClaw = hardwareMap.get(Servo.class, "dClaw");
-        turret = hardwareMap.get(Servo.class, "turret");
+        turret = hardwareMap.get(Servo.class, "iTurret");
         intakeArm = hardwareMap.get(Servo.class, "iArm");
         intakePivot = hardwareMap.get(Servo.class, "iPivot");
         intakeWrist = hardwareMap.get(Servo.class, "iWrist");
         intakeClaw = hardwareMap.get(Servo.class, "iClaw");
-        leftHang = hardwareMap.get(Servo.class, "lHang");
-        rightHang = hardwareMap.get(Servo.class, "rHang");
+        leftHang = hardwareMap.get(Servo.class, "hangL");
+        rightHang = hardwareMap.get(Servo.class, "hangR");
 
         // Lights:
-        light = hardwareMap.get(RevBlinkinLedDriver.class, "light");
+//        light = hardwareMap.get(RevBlinkinLedDriver.class, "light");
 
         // Limelight:
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -147,7 +140,7 @@ public abstract class RobotBase extends PinpointDrive {
         limelight.pipelineSwitch(pipelineNo);
 
         // Color Sensors:
-        intakeColorSensor = hardwareMap.get(RevColorSensorV3.class, "intakeColorSensor");
+        intakeColorSensor = hardwareMap.get(RevColorSensorV3.class, "iColor");
         intakeSampleState = new IntakeSampleState(this);
 
         // Update Constants
@@ -166,7 +159,7 @@ public abstract class RobotBase extends PinpointDrive {
         setIntakeClawPos(IntakeClawTask.Position.OPEN);
         setIntakePivotPos(IntakePivotTask.Position.VERTICAL);
         setDeliveryClawPos(DeliveryClawTask.Position.OPEN);
-        setDiffyPos(DiffyTask.Position.FLAT);
+        setDeliveryPos(DeliveryTask.Position.FLAT);
         setTurretPos(IntakeTurretTask.Position.STRAIGHT);
     }
     public void autoInit() {
@@ -175,7 +168,7 @@ public abstract class RobotBase extends PinpointDrive {
         setIntakeClawPos(IntakeClawTask.Position.OPEN);
         setIntakePivotPos(IntakePivotTask.Position.VERTICAL);
         setDeliveryClawPos(DeliveryClawTask.Position.CLOSE);
-        setDiffyPos(DiffyTask.Position.FLAT);
+        setDeliveryPos(DeliveryTask.Position.FLAT);
         setTurretPos(IntakeTurretTask.Position.STRAIGHT);
     }
 
@@ -331,12 +324,12 @@ public abstract class RobotBase extends PinpointDrive {
         deliveryClaw.setPosition(getDeliveryClawPosition(position));
     }
 
-    ///////////////////* DIFFY UTILS *///////////////////
+    ///////////////////* DELIVERY UTILS *///////////////////
 
-    public abstract double getDiffyTargetPos(DiffyTask.WhichDiffy placer, DiffyTask.Position position);
-    public void setDiffyPos(DiffyTask.Position position) {
-        DiffyTask.setDiffyPosition(this, DiffyTask.WhichDiffy.LEFT, position);
-        DiffyTask.setDiffyPosition(this, DiffyTask.WhichDiffy.RIGHT, position);
+    public abstract double getDeliveryTargetPos(DeliveryTask.WhichDelivery placer, DeliveryTask.Position position);
+    public void setDeliveryPos(DeliveryTask.Position position) {
+        DeliveryTask.setDeliveryPosition(this, DeliveryTask.WhichDelivery.LEFT, position);
+        DeliveryTask.setDeliveryPosition(this, DeliveryTask.WhichDelivery.RIGHT, position);
     }
 
     ///////////////////* COLOR SENSOR + LIGHTS UTILS *///////////////////
@@ -376,7 +369,7 @@ public abstract class RobotBase extends PinpointDrive {
         limelight.stop();
     }
     public Coordinates getLimelightObjectPosition() {
-        return limelightSampleDetector.getObjectPosition(1.0);
+        return limelightSampleDetector.getObjectPosition();
     }
     public ObjectOrientation getLimelightObjectOrientation() {
         return limelightSampleDetector.getObjectOrientation();

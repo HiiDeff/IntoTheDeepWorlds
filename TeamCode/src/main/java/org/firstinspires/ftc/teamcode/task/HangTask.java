@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.drive.RobotBase;
 import org.firstinspires.ftc.teamcode.util.Utils;
 
 /**
- * 5-turn torque servo has 40 RPM under 4.8 v and 4.5 turn max rotation.
+ * torque servo has 40 RPM under 4.8 v and 300 degree max rotation.
  */
 @Config
 public class HangTask extends TimedTask {
@@ -16,8 +16,8 @@ public class HangTask extends TimedTask {
         RIGHT
     }
 
-    private static final int RPM = 20; // 40 RPM without load
-    private static final int MAX_ROTATION_DEGREE = 1620; // 4.5 turn
+    private static final int RPM = 40;
+    private static final int MAX_ROTATION_DEGREE = 300;
 
 
     private final RobotBase robot;

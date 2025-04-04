@@ -8,13 +8,14 @@ import org.firstinspires.ftc.teamcode.task.TimedTask;
 import org.firstinspires.ftc.teamcode.util.Utils;
 
 /**
- * Dual mode speed servo has 90 RPM under 4.8 v and 300 degree max rotation.
+ * Axon Max+ servo has 0.14sec/60° -> 1/6/0.14*60 RPM
+ * under 4.8 v and 355 degree max rotation.
  */
 @Config
 public class IntakeArmTask extends TimedTask {
 
-    private static final int RPM = 50;
-    private static final int MAX_ROTATION_DEGREE = 300;
+    private static final int RPM = 71;
+    private static final int MAX_ROTATION_DEGREE = 355;
 
     private RobotBase robot;
     private Position position;

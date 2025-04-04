@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.task.SeriesTask;
 import org.firstinspires.ftc.teamcode.task.SleepTask;
 import org.firstinspires.ftc.teamcode.task.Task;
 import org.firstinspires.ftc.teamcode.task.DeliveryClawTask;
-import org.firstinspires.ftc.teamcode.task.DiffyTask;
+import org.firstinspires.ftc.teamcode.task.DeliveryTask;
 import org.firstinspires.ftc.teamcode.task.HorizontalSlidesTask;
 import org.firstinspires.ftc.teamcode.task.IntakeArmTask;
 import org.firstinspires.ftc.teamcode.task.IntakeClawTask;
@@ -27,8 +27,6 @@ import org.firstinspires.ftc.teamcode.task.IntakeWristTask;
 import org.firstinspires.ftc.teamcode.task.IntakeTurretTask;
 import org.firstinspires.ftc.teamcode.task.VerticalSlidesTask;
 import org.firstinspires.ftc.teamcode.util.GamePad;
-import org.firstinspires.ftc.teamcode.util.limelight.LimelightConfig;
-import org.firstinspires.ftc.teamcode.util.limelight.LimelightProcessorBase;
 
 @TeleOp(name = "TeleOp1")
 public class TeleOp1 extends LinearOpMode {
@@ -216,8 +214,8 @@ public class TeleOp1 extends LinearOpMode {
                         new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL),
                         new IntakeWristTask(robot, IntakeWristTask.Position.HOVER),
                         new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.TRANSFER),
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.TRANSFER)
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.TRANSFER),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.TRANSFER)
                 )
         );
         return hoverTask;
@@ -243,8 +241,8 @@ public class TeleOp1 extends LinearOpMode {
         Task transferTask = new SeriesTask(
                 new ParallelTask(
                         new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN),
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.TRANSFER),
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.TRANSFER),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.TRANSFER),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.TRANSFER),
                         new IntakeClawTask(robot, IntakeClawTask.Position.CLOSE)
                 ),
                 new ParallelTask(
@@ -267,8 +265,8 @@ public class TeleOp1 extends LinearOpMode {
                             new DeliveryClawTask(robot, DeliveryClawTask.Position.CLOSE),
                             new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
                             new ParallelTask(
-                                    new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.DELIVER),
-                                    new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.DELIVER),
+                                    new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.DELIVER),
+                                    new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.DELIVER),
                                     new SeriesTask(
                                             new SleepTask(500),
                                             new ParallelTask(
@@ -290,8 +288,8 @@ public class TeleOp1 extends LinearOpMode {
         Task neutralTask = new SeriesTask(
                 new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN),
                 new ParallelTask(
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.LEFT, DiffyTask.Position.UP),
-                        new DiffyTask(robot, DiffyTask.WhichDiffy.RIGHT, DiffyTask.Position.UP),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.UP),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.UP),
                         new SeriesTask(
                                 new SleepTask(500),
                                 new VerticalSlidesTask(robot, 0.0, 0.5,1500)

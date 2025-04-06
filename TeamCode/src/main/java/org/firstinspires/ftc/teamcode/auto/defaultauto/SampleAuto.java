@@ -5,6 +5,7 @@ import android.util.Log;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+import com.acmerobotics.roadrunner.Vector2d;
 
 import org.firstinspires.ftc.teamcode.auto.AutoBase;
 import org.firstinspires.ftc.teamcode.auto.conditions.SampleStateCondition;
@@ -23,6 +24,10 @@ import org.firstinspires.ftc.teamcode.task.SeriesTask;
 import org.firstinspires.ftc.teamcode.task.SleepTask;
 import org.firstinspires.ftc.teamcode.task.Task;
 import org.firstinspires.ftc.teamcode.task.VerticalSlidesTask;
+import org.firstinspires.ftc.teamcode.util.limelight.Coordinates;
+import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
+import org.firstinspires.ftc.teamcode.common.InvKin;
+
 
 @Config
 public abstract class SampleAuto extends AutoBase {
@@ -52,7 +57,7 @@ public abstract class SampleAuto extends AutoBase {
                         new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
                         new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
                         new IntakeWristTask(robot, IntakeWristTask.Position.HOVER),
-                        new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL),
+                        new IntakePivotTask(robot, SampleOrientation.VERTICAL),
                         new IntakeClawTask(robot, IntakeClawTask.Position.OPEN)
                 )
         );
@@ -122,8 +127,8 @@ public abstract class SampleAuto extends AutoBase {
                                         new IntakeArmTask(robot, IntakeArmTask.Position.TRANSFER),
                                         new DecisionTask(
                                                 new SampleStateCondition(robot),
-                                                new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL_INVERSE),
-                                                new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL)
+                                                new IntakePivotTask(robot, SampleOrientation.VERTICAL_INVERSE),
+                                                new IntakePivotTask(robot, SampleOrientation.VERTICAL)
                                         ),
                                         new HorizontalSlidesTask(robot, -0.0, 0.8, 1000)
                                 )
@@ -145,7 +150,7 @@ public abstract class SampleAuto extends AutoBase {
                                                 new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
                                                 new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
                                                 new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
-                                                new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL),
+                                                new IntakePivotTask(robot, SampleOrientation.VERTICAL),
                                                 new VerticalSlidesTask(robot, DELIVERY_HEIGHT_INCH,1.0,500)
                                         )
                                 )
@@ -178,7 +183,7 @@ public abstract class SampleAuto extends AutoBase {
                             new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
                             new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
                             new IntakeWristTask(robot, IntakeWristTask.Position.HOVER),
-                            new IntakePivotTask(robot, spikeMarkNumber==2? IntakePivotTask.Position.TILTED_RIGHT:IntakePivotTask.Position.VERTICAL),
+                            new IntakePivotTask(robot, spikeMarkNumber==2? SampleOrientation.TILTED_RIGHT:SampleOrientation.VERTICAL),
                             new IntakeClawTask(robot, IntakeClawTask.Position.OPEN)
                     )
             );
@@ -209,7 +214,7 @@ public abstract class SampleAuto extends AutoBase {
                             new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
                             new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
                             new IntakeWristTask(robot, IntakeWristTask.Position.BACK),
-                            new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL),
+                            new IntakePivotTask(robot, SampleOrientation.VERTICAL),
                             new IntakeClawTask(robot, IntakeClawTask.Position.OPEN)
                     )
             );
@@ -221,7 +226,45 @@ public abstract class SampleAuto extends AutoBase {
     @Override
     protected Task createCycleTask() {
         state = AutoState.CYCLE;
+        robot.sortLimelightEntries();
+        Coordinates samplePos = robot.getLimelightObjectPosition();
+        SampleOrientation sampleOrientation = robot.getLimelightObjectOrientation();
+        //assume x displacement (strafing displacement) is 0
+        double slideExtendLengthInch = InvKin.inverseKinematics(new Coordinates(0, samplePos.getY(), samplePos.getAngle())).getY();
+
         SeriesTask task = new SeriesTask();
+
+        task.add(
+                new ParallelTask(
+                        new RuntimeDrivingTask(
+                                robot,
+                                builder -> {
+                                    Pose2d currPos = robot.getPositionRR();
+                                    double theta = currPos.heading.toDouble() - (-Math.PI/2);
+                                    double yComponent = -Math.sin(theta)*samplePos.getX();
+                                    double xComponent = currPos.position.x - Math.cos(theta)*samplePos.getX();
+                                    return builder
+                                            .strafeToConstantHeading(new Vector2d(xComponent, yComponent))
+                                            .build();
+                                }
+                        ),
+                        new IntakePivotTask(robot, sampleOrientation),
+                        new HorizontalSlidesTask(robot, slideExtendLengthInch,1.0,750),
+                        new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
+                        new IntakeWristTask(robot, IntakeWristTask.Position.HOVER),
+                        new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
+                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT)
+                )
+        );
+        task.add(
+                new SeriesTask(
+                        new ParallelTask(
+                                new IntakeArmTask(robot, IntakeArmTask.Position.DOWN),
+                                new IntakeWristTask(robot, IntakeWristTask.Position.DOWN)
+                        ),
+                        new IntakeClawTask(robot, IntakeClawTask.Position.CLOSE)
+                )
+        );
 
         task.add(
                 new RuntimeDrivingTask(

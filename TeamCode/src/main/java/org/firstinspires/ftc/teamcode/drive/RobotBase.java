@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -24,7 +23,7 @@ import org.firstinspires.ftc.teamcode.util.Utils;
 import org.firstinspires.ftc.teamcode.util.limelight.Coordinates;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightConfig;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightSampleDetector;
-import org.firstinspires.ftc.teamcode.util.limelight.ObjectOrientation;
+import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 import org.firstinspires.ftc.teamcode.util.pid.PIDCoefficients;
 
 @Config
@@ -36,12 +35,11 @@ public abstract class RobotBase extends PinpointDrive {
     // Vertical Slides Constants
     public static double VERTICAL_EXTEND_MIN_IN = -0.2, VERTICAL_EXTEND_MAX_IN = 30.0; //actually 29
     public static double VERTICAL_TICKS_PER_INCH = 938.0/29;
-    public static double VERTICAL_SLIDE_DOWN_POWER_TELEOP = -0.5, VERTICAL_SLIDE_DOWN_POWER_AUTO = -0.7;
+    public static double VERTICAL_SLIDE_DOWN_POWER_TELEOP = -0.3, VERTICAL_SLIDE_DOWN_POWER_AUTO = -0.5;
 
     // Horizontal Slides Constants
-    public static double HORIZONTAL_EXTEND_MIN_IN = -2.0, HORIZONTAL_EXTEND_MAX_IN = 22.0;
-    public static double HORIZONTAL_TICKS_PER_INCH = 31.8181818;
-    public static double HORIZONTAL_SLIDE_TRANSFER_POS = 64 / HORIZONTAL_TICKS_PER_INCH;
+    public static double HORIZONTAL_EXTEND_MIN_IN = -2.0, HORIZONTAL_EXTEND_MAX_IN = 21.5;
+    public static double HORIZONTAL_TICKS_PER_INCH = 690/21.5;
 
     // Intake Constants
 
@@ -60,7 +58,7 @@ public abstract class RobotBase extends PinpointDrive {
     public final Servo leftHang, rightHang;
 
     // Motion PIDs + Profilers
-    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.02, 0.0, 0.0,0.22); // new PIDCoefficients(0.3, 1.0, 0.006, 0.0, 0.0,0.16); //0.07 min ff, 0.37 = max ff, so do
+//    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.02, 0.0, 0.0,0.22); // new PIDCoefficients(0.3, 1.0, 0.006, 0.0, 0.0,0.16); //0.07 min ff, 0.37 = max ff, so do
     public final VerticalSlidesPID verticalSlidesPID;
 
     // Lights
@@ -109,15 +107,19 @@ public abstract class RobotBase extends PinpointDrive {
         horizontalSlides.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         verticalSlidesLeft = hardwareMap.get(DcMotorEx.class, "vSlidesL");
-        verticalSlidesLeft.setDirection(DcMotor.Direction.REVERSE);
         verticalSlidesLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         verticalSlidesLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         verticalSlidesRight = hardwareMap.get(DcMotorEx.class, "vSlidesR");
         verticalSlidesRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         verticalSlidesRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        VERTICAL_SLIDES_PID_COEFFICIENTS = getVerticalSlidesPidCoefficients();
-        verticalSlidesPID = new VerticalSlidesPID(this, VERTICAL_SLIDES_PID_COEFFICIENTS);
+        if(verticalSlidesLeftIsReversed()) {
+            verticalSlidesLeft.setDirection(DcMotor.Direction.REVERSE);
+        } else {
+            verticalSlidesRight.setDirection(DcMotor.Direction.REVERSE);
+        }
+
+        verticalSlidesPID = new VerticalSlidesPID(this, getVerticalSlidesPidCoefficients());
 
         // Servos:
         deliveryLeft = hardwareMap.get(Servo.class, "deliveryL");
@@ -145,8 +147,8 @@ public abstract class RobotBase extends PinpointDrive {
 
         // Update Constants
 
-//        VERTICAL_TICKS_PER_INCH = getVerticalSlidesTicksPerInch();
-//        VERTICAL_EXTEND_MAX_IN = getVerticalSlidesMaxIn();
+        VERTICAL_TICKS_PER_INCH = getVerticalSlidesTicksPerInch();
+        VERTICAL_EXTEND_MAX_IN = getVerticalSlidesMaxIn();
     }
 
 
@@ -157,7 +159,7 @@ public abstract class RobotBase extends PinpointDrive {
         setIntakeArmPos(IntakeArmTask.Position.BACK);
         setIntakeWristPos(IntakeWristTask.Position.TRANSFER);
         setIntakeClawPos(IntakeClawTask.Position.OPEN);
-        setIntakePivotPos(IntakePivotTask.Position.VERTICAL);
+        setIntakePivotPos(SampleOrientation.VERTICAL);
         setDeliveryClawPos(DeliveryClawTask.Position.OPEN);
         setDeliveryPos(DeliveryTask.Position.FLAT);
         setTurretPos(IntakeTurretTask.Position.STRAIGHT);
@@ -166,7 +168,7 @@ public abstract class RobotBase extends PinpointDrive {
         setIntakeArmPos(IntakeArmTask.Position.BACK);
         setIntakeWristPos(IntakeWristTask.Position.TRANSFER);
         setIntakeClawPos(IntakeClawTask.Position.OPEN);
-        setIntakePivotPos(IntakePivotTask.Position.VERTICAL);
+        setIntakePivotPos(SampleOrientation.VERTICAL);
         setDeliveryClawPos(DeliveryClawTask.Position.CLOSE);
         setDeliveryPos(DeliveryTask.Position.FLAT);
         setTurretPos(IntakeTurretTask.Position.STRAIGHT);
@@ -191,7 +193,7 @@ public abstract class RobotBase extends PinpointDrive {
     }
     public void updatePIDs() {
         if(verticalSlidesRunToPosition) {
-            setVerticalSlidePowerForPID(VERTICAL_SLIDES_PID_COEFFICIENTS.feedForward + verticalSlidesPID.getPower());
+            setVerticalSlidePowerForPID(getVerticalSlidesPidCoefficients().feedForward + verticalSlidesPID.getPower());
         }
     }
     public void updateEncoders() {
@@ -222,6 +224,7 @@ public abstract class RobotBase extends PinpointDrive {
 
     ///////////////////* VERTICAL SLIDES UTILS *///////////////////
 
+    public abstract boolean verticalSlidesLeftIsReversed();
     public abstract double getVerticalSlidesTicksPerInch();
     public abstract double getVerticalSlidesMaxIn();
     public abstract PIDCoefficients getVerticalSlidesPidCoefficients();
@@ -283,9 +286,6 @@ public abstract class RobotBase extends PinpointDrive {
     public double getHorizontalSlideDistTicks() {
         return horizontalSlides.getCurrentPosition();
     }
-    public double getHorizontalSlideTransferPos() {
-        return HORIZONTAL_SLIDE_TRANSFER_POS;
-    }
 
 
     ///////////////////* DELIVERY UTILS *///////////////////
@@ -302,8 +302,8 @@ public abstract class RobotBase extends PinpointDrive {
     public void setIntakeArmPos(IntakeArmTask.Position position) {
         intakeArm.setPosition(getIntakeArmPosition(position));
     }
-    public abstract double getIntakePivotPosition(IntakePivotTask.Position position);
-    public void setIntakePivotPos(IntakePivotTask.Position position) {
+    public abstract double getIntakePivotPosition(SampleOrientation position);
+    public void setIntakePivotPos(SampleOrientation position) {
         intakePivot.setPosition(getIntakePivotPosition(position));
     }
     public abstract double getTurretPosition(IntakeTurretTask.Position position);
@@ -365,13 +365,14 @@ public abstract class RobotBase extends PinpointDrive {
     public void updateLimelight() {
         limelightSampleDetector.updateLimelight();
     }
+    public void sortLimelightEntries() { limelightSampleDetector.sortCoordinates(); }
     public void stopLimelight() {
         limelight.stop();
     }
     public Coordinates getLimelightObjectPosition() {
         return limelightSampleDetector.getObjectPosition();
     }
-    public ObjectOrientation getLimelightObjectOrientation() {
+    public SampleOrientation getLimelightObjectOrientation() {
         return limelightSampleDetector.getObjectOrientation();
     }
 }

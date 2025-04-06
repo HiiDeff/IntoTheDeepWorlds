@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.auto.conditions.SampleStateCondition;
+import org.firstinspires.ftc.teamcode.drive.RobotBase;
 import org.firstinspires.ftc.teamcode.drive.RobotFactory;
 import org.firstinspires.ftc.teamcode.drive.SensorUpdateThread;
 import org.firstinspires.ftc.teamcode.drive.robot1.Robot1;
@@ -27,6 +28,7 @@ import org.firstinspires.ftc.teamcode.task.IntakeWristTask;
 import org.firstinspires.ftc.teamcode.task.IntakeTurretTask;
 import org.firstinspires.ftc.teamcode.task.VerticalSlidesTask;
 import org.firstinspires.ftc.teamcode.util.GamePad;
+import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 
 @TeleOp(name = "TeleOp1")
 public class TeleOp1 extends LinearOpMode {
@@ -36,7 +38,7 @@ public class TeleOp1 extends LinearOpMode {
     private IntakeState intakeState = IntakeState.NEUTRAL;
 
 
-    private Robot1 robot;
+    private RobotBase robot;
     private GamePad gp1, gp2;
 
     private boolean clawOpen, intakeClawVertical = true, testToggle = false;
@@ -53,7 +55,7 @@ public class TeleOp1 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         multipleTelemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
-        robot = (Robot1) RobotFactory.createRobot(hardwareMap);
+        robot = (RobotBase) RobotFactory.createRobot(hardwareMap);
         robot.limelight.pipelineSwitch(pipelineNo);
         sensorUpdateThread = new SensorUpdateThread(robot);
         robot.teleOpInit();
@@ -168,7 +170,7 @@ public class TeleOp1 extends LinearOpMode {
         }
 
         if (gp1.onceRightBumper() || gp2.onceRightBumper()) {
-            robot.setIntakePivotPos(intakeClawVertical? IntakePivotTask.Position.HORIZONTAL : IntakePivotTask.Position.VERTICAL);
+            robot.setIntakePivotPos(intakeClawVertical? SampleOrientation.HORIZONTAL : SampleOrientation.VERTICAL);
             intakeClawVertical = ! intakeClawVertical;
         }
     }
@@ -211,7 +213,7 @@ public class TeleOp1 extends LinearOpMode {
                         new HorizontalSlidesTask(robot, 10.0,1.0,1500),
                         new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
                         new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
-                        new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL),
+                        new IntakePivotTask(robot, SampleOrientation.VERTICAL),
                         new IntakeWristTask(robot, IntakeWristTask.Position.HOVER),
                         new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
                         new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.TRANSFER),
@@ -254,8 +256,8 @@ public class TeleOp1 extends LinearOpMode {
                         new IntakeArmTask(robot, IntakeArmTask.Position.TRANSFER),
                         new DecisionTask(
                                 new SampleStateCondition(robot),
-                                new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL_INVERSE),
-                                new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL)
+                                new IntakePivotTask(robot, SampleOrientation.VERTICAL_INVERSE),
+                                new IntakePivotTask(robot, SampleOrientation.VERTICAL)
                         ),
                         new HorizontalSlidesTask(robot, -0.0, 1.0, 1500)
                 ),
@@ -273,7 +275,7 @@ public class TeleOp1 extends LinearOpMode {
                                                     new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
                                                     new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
                                                     new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
-                                                    new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL),
+                                                    new IntakePivotTask(robot, SampleOrientation.VERTICAL),
                                                     new VerticalSlidesTask(robot, 29.0,1.0,2000)
                                             )
                                     )

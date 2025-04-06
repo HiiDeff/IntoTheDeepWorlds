@@ -6,7 +6,6 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -28,6 +27,7 @@ public abstract class LimelightProcessorBase {
         result = limelight.getLatestResult();
         if(result!=null) pythonResult = result.getPythonOutput();
         else pythonResult = new double[] {0};
+        sortCoordinates();
     }
 
     public synchronized void sortCoordinates() {
@@ -37,19 +37,20 @@ public abstract class LimelightProcessorBase {
     }
 
     public synchronized Coordinates getObjectPosition() {
-        if(sortedCoordinates.size()>0) {
+        if(sortedCoordinates!=null && !sortedCoordinates.isEmpty()) {
             return sortedCoordinates.get(0);
         }
         else {
             return new Coordinates(-1, -1);
         }
     }
-    public synchronized ObjectOrientation getObjectOrientation() {
-        if(sortedCoordinates.size()>0) {
+    public synchronized SampleOrientation getObjectOrientation() {
+        if(sortedCoordinates!=null && !sortedCoordinates.isEmpty()) {
+            Log.e("edbug sample angle", ""+sortedCoordinates.get(0).getAngle());
             return getOrientationFromAngle(sortedCoordinates.get(0).getAngle());
         }
         else {
-            return ObjectOrientation.VERTICAL;
+            return SampleOrientation.VERTICAL;
         }
     }
 
@@ -61,7 +62,7 @@ public abstract class LimelightProcessorBase {
     protected Coordinates pixelCoordinatesToNormalizedCoordinates(Coordinates pixelCoordinates) {
         double nx = 1.0/(LLConfig.resolutionX/2.0) * (pixelCoordinates.x - (LLConfig.resolutionX/2.0-0.5));
         double ny = 1.0/(LLConfig.resolutionY/2.0) * -(pixelCoordinates.y - (LLConfig.resolutionY/2.0-0.5));
-        return new Coordinates(nx, ny);
+        return new Coordinates(nx, ny, pixelCoordinates.getAngle());
     }
 
     // Prefer normalized over this
@@ -74,7 +75,7 @@ public abstract class LimelightProcessorBase {
     //receives normalized pixel coordinates as input
     //returns x, y, z, and angle of object in inches and radians. Right (x), forwards (y), and up (z) are positive.
     protected abstract Coordinates normalizedPixelToRealWorldCoordinates(Coordinates pixel);
-    protected abstract ObjectOrientation getOrientationFromAngle(double angle);
+    protected abstract SampleOrientation getOrientationFromAngle(double angle);
 
     protected double toRadians(double angDeg) {
         return Math.toRadians(angDeg);
@@ -95,7 +96,11 @@ public abstract class LimelightProcessorBase {
     private List<Coordinates> normalizedToRealWorld(List<Coordinates> normalizedCoordinates) {
         List<Coordinates> realWorld = new ArrayList<>();
         for(Coordinates i: normalizedCoordinates) {
-            realWorld.add(normalizedPixelToRealWorldCoordinates(i));
+            Coordinates temp = normalizedPixelToRealWorldCoordinates(i);
+            Log.e("edbug rwcoordinates prev", temp.getX()+" "+temp.getY()+" "+temp.getAngle());
+            temp.angle = i.angle;
+            realWorld.add(temp);
+            Log.e("edbug rwcoordinates ", temp.getX()+" "+temp.getY()+" "+temp.getAngle());
         }
         return realWorld;
     }
@@ -105,6 +110,7 @@ public abstract class LimelightProcessorBase {
         for(int i=1; i<pythonResult[0]*3+1; i+=3){
             if(i+2>=pythonResult.length) break;
             Coordinates cur = new Coordinates(pythonResult[i], pythonResult[i+1], pythonResult[i+2]);
+            Log.e("cur "+i,""+cur.getX()+" "+cur.getY()+" "+cur.getAngle());
             normalized.add(pixelCoordinatesToNormalizedCoordinates(cur));
         }
         return normalized;

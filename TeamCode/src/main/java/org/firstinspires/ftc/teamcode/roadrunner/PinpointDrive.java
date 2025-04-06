@@ -119,6 +119,10 @@ public class PinpointDrive extends MecanumDrive {
         return pinpoint.getVelocityRR();
     }
 
+    public Pose2d getPositionRR() {
+        return pinpoint.getPositionRR();
+    }
+
 
     // for debug logging
     public static final class FTCPoseMessage {

@@ -9,6 +9,7 @@ import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.common.InvKin;
 import org.firstinspires.ftc.teamcode.drive.RobotFactory;
 import org.firstinspires.ftc.teamcode.drive.robot2.Robot2;
 import org.firstinspires.ftc.teamcode.task.DeliveryClawTask;
@@ -28,7 +29,7 @@ import org.firstinspires.ftc.teamcode.util.Utils;
 import org.firstinspires.ftc.teamcode.util.limelight.Coordinates;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightConfig;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightSampleDetector;
-import org.firstinspires.ftc.teamcode.util.limelight.ObjectOrientation;
+import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 
 @TeleOp(name = "Robot 2 Test w/ Limelight", group = "Test")
 @Config
@@ -45,10 +46,10 @@ public class Robot2Test extends LinearOpMode {
     private LimelightSampleDetector limelightSampleDetector;
     public static LimelightConfig LLConfig = new LimelightConfig(640, 480,
             -30, 54,41,
-            7.5,6.0,14.3,
-            0.081081081, 0.12); //ROBOT 5 MEASUREMENTS
-    public static int pipelineNo = 6;
-    public static double distBeforeTurretCenter = 7.0, TURRET_LENGTH_INCH = 5.0;
+            6.75,-0.5,10.55,
+            0, 0.7/5.3); //ROBOT 5 MEASUREMENTS
+    public static int pipelineNo = 7;
+    public static double TURRET_LENGTH_INCH = 5.0;
 
     // Position Tuning
     public static boolean debugMode;
@@ -100,7 +101,7 @@ public class Robot2Test extends LinearOpMode {
             multipleTelemetry.addData("objectXPos",objectPosition.x);
             multipleTelemetry.addData("objectYPos",objectPosition.y);
 
-            ObjectOrientation orientation = limelightSampleDetector.getObjectOrientation();
+            SampleOrientation orientation = limelightSampleDetector.getObjectOrientation();
             multipleTelemetry.addData("orientation",orientation.toString());
 
             multipleTelemetry.addData("vertical slide pos ticks", robot.getVerticalSlidesHeightTicks());
@@ -109,21 +110,29 @@ public class Robot2Test extends LinearOpMode {
 
 
 
+            Coordinates invKin = InvKin.inverseKinematics(objectPosition);
+
+            multipleTelemetry.addData("angle to object", invKin.getAngle());
+            multipleTelemetry.addData("y to object", invKin.getY());
+
+            if(gamepad.onceA()) {
+                task = new SeriesTask(
+                        new IntakeTurretTask(robot, IntakeTurretTask.Position.LEFT_45_DEG),
+                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT)
+                );
+            }
 
             if(gamepad.onceX()) {
 
-                Coordinates invKin = inverseKinematics(objectPosition);
-
-                double absoluteDist = Math.sqrt(objectPosition.x*objectPosition.x + objectPosition.y*objectPosition.y);
 
                 task = new SeriesTask(
                         new ParallelTask(
                                 new HorizontalSlidesTask(robot, invKin.getY(), 1.0, 1500),
                                 new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
                                 new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
-                                new IntakePivotTask(robot, robot.getIntakePivotPosition(orientationToPivotPosition(orientation))+angleToPivotPosition(invKin.getAngle())),
+                                new IntakePivotTask(robot, orientation, invKin.getAngle()),
                                 new IntakeWristTask(robot, IntakeWristTask.Position.HOVER),
-                                new IntakeTurretTask(robot, angleToServoPosition(invKin.getAngle())),
+                                new IntakeTurretTask(robot, invKin.getAngle()),
                                 new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
                         ),
                         new ParallelTask(
@@ -158,7 +167,7 @@ public class Robot2Test extends LinearOpMode {
                                 new HorizontalSlidesTask(robot, 0, 1.0, 1500),
                                 new IntakeArmTask(robot, IntakeArmTask.Position.TRANSFER),
                                 new IntakeClawTask(robot, IntakeClawTask.Position.CLOSE),
-                                new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL),
+                                new IntakePivotTask(robot, SampleOrientation.VERTICAL),
                                 new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
                                 new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT)
                         ),
@@ -199,8 +208,6 @@ public class Robot2Test extends LinearOpMode {
     }
 
     private Coordinates inverseKinematics(Coordinates position) {
-        position.y -= distBeforeTurretCenter;
-
         double y = position.y - Math.sqrt(TURRET_LENGTH_INCH*TURRET_LENGTH_INCH - position.x*position.x);
         double angle = Math.toDegrees(Math.asin(position.x/TURRET_LENGTH_INCH));
         if(position.x>TURRET_LENGTH_INCH) {
@@ -217,9 +224,9 @@ public class Robot2Test extends LinearOpMode {
     private double angleToServoPosition(double angle) {
         Log.e("angle", ""+angle);
         if(angle<0) {
-            return Utils.clamp(Robot2.TURRET_STRAIGHT+(Robot2.TURRET_STRAIGHT - Robot2.TURRET_LEFT_45_DEG)*angle/45.0, 0.0, 1.0);
+            return Utils.clamp(Robot2.TURRET_STRAIGHT-(Robot2.TURRET_STRAIGHT - Robot2.TURRET_LEFT_45_DEG)*angle/45.0, 0.0, 1.0);
         } else {
-            return Utils.clamp(Robot2.TURRET_STRAIGHT+(Robot2.TURRET_RIGHT_45_DEG - Robot2.TURRET_STRAIGHT)*angle/45.0, 0.0, 1.0);
+            return Utils.clamp(Robot2.TURRET_STRAIGHT-(Robot2.TURRET_RIGHT_45_DEG - Robot2.TURRET_STRAIGHT)*angle/45.0, 0.0, 1.0);
         }
     }
     private double angleToPivotPosition(double angle) {
@@ -228,19 +235,6 @@ public class Robot2Test extends LinearOpMode {
             return Utils.clamp((Robot2.INTAKE_PIVOT_TILTED_LEFT - Robot2.INTAKE_PIVOT_VERTICAL)*angle/45.0, 0.0, 1.0);
         } else {
             return Utils.clamp((Robot2.INTAKE_PIVOT_VERTICAL - Robot2.INTAKE_PIVOT_TILTED_RIGHT)*angle/45.0, 0.0, 1.0);
-        }
-    }
-    private IntakePivotTask.Position orientationToPivotPosition(ObjectOrientation orientation) {
-        switch(orientation) {
-            case TILTED_LEFT:
-                return IntakePivotTask.Position.TILTED_LEFT;
-            case TILTED_RIGHT:
-                return IntakePivotTask.Position.TILTED_RIGHT;
-            case HORIZONTAL:
-                return IntakePivotTask.Position.HORIZONTAL;
-            case VERTICAL:
-            default:
-                return IntakePivotTask.Position.VERTICAL;
         }
     }
 

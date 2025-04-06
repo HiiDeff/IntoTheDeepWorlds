@@ -12,6 +12,8 @@ import org.firstinspires.ftc.teamcode.common.AutoStates;
 import org.firstinspires.ftc.teamcode.drive.RobotBase;
 import org.firstinspires.ftc.teamcode.drive.SensorUpdateThread;
 import org.firstinspires.ftc.teamcode.task.Task;
+import org.firstinspires.ftc.teamcode.util.limelight.Coordinates;
+import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 
 @Config
 public abstract class AutoBase extends LinearOpMode {
@@ -58,9 +60,8 @@ public abstract class AutoBase extends LinearOpMode {
 
         boolean done = false;
         while (opModeIsActive() && !done && task != null) {
-
             robot.updateEverything();
-//            robot.updateLimelight();
+            robot.updateLimelight();
             if(timeToFinish() && state != AutoState.FINISH) {
                 task.cancel();
                 task = createFinishTask();

@@ -17,7 +17,7 @@ public class PIDTest extends LinearOpMode {
 
 
     public MultipleTelemetry multipleTelemetry;
-    private Robot1 robot;
+    private RobotBase robot;
     public static double targetPos = 10.0;
 
     @Override
@@ -25,7 +25,7 @@ public class PIDTest extends LinearOpMode {
 
         multipleTelemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        robot = (Robot1) RobotFactory.createRobot(hardwareMap);
+        robot = (RobotBase) RobotFactory.createRobot(hardwareMap);
 
         waitForStart();
         while(opModeIsActive()) {

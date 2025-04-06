@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.task.IntakeArmTask;
 import org.firstinspires.ftc.teamcode.task.IntakePivotTask;
 import org.firstinspires.ftc.teamcode.task.IntakeWristTask;
 import org.firstinspires.ftc.teamcode.task.IntakeTurretTask;
+import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 import org.firstinspires.ftc.teamcode.util.pid.PIDCoefficients;
 import org.firstinspires.ftc.teamcode.util.profile.ProfileConstraints;
 
@@ -26,46 +27,48 @@ public class Robot2 extends RobotBase {
 
     ///////////////////* CONSTANTS *///////////////////
 
-    public static double VERTICAL_TICKS_PER_INCH  = 930.0/28.8, VERTICAL_EXTEND_MAX_INCH = 29;
+    public static double VERTICAL_TICKS_PER_INCH  = 1127/34.5, VERTICAL_EXTEND_MAX_INCH = 34.5;
 
     // PID + Profile Constraints
-    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.005, 0.0, 0.0,0.22); // new PIDCoefficients(0.3, 1.0, 0.006, 0.0, 0.0,0.16); //0.07 min ff, 0.37 = max ff, so do
+    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.015, 0.0, 0.0,0.27); //0.14 min ff, 0.4 = max ff, so do 0.27
     //min stand power = 0.1, max 0.33
 
     public static ProfileConstraints DELIVERY_ARM_CONSTRAINTS = new ProfileConstraints(10, 12, 16);
 
     // Intake Servo Positions
-    public static double INTAKE_ARM_DOWN = 0.02,
-            INTAKE_ARM_TRANSFER = 0.00,
-            INTAKE_ARM_HOVER = 0.10,
-            INTAKE_ARM_BACK = 0.2,
-            INTAKE_ARM_SLIGHTLY_UP = 0.10;
+    public static double INTAKE_ARM_DOWN = 0.58,
+            INTAKE_ARM_TRANSFER = 0.66,
+            INTAKE_ARM_HOVER = 0.50,
+            INTAKE_ARM_BACK = 0.30,
+            INTAKE_ARM_SLIGHTLY_UP = 0.34,
+            INTAKE_ARM_DROP_OFF = 0.48;
 
-    public static double INTAKE_WRIST_TRANSFER = 0.61,
-            INTAKE_WRIST_HOVER = 0.05,
-            INTAKE_WRIST_DOWN = 0.04,
-            INTAKE_WRIST_BACK = 0.5,
-            INTAKE_WRIST_SLIGHTLY_UP = 0.48;
+    public static double INTAKE_WRIST_TRANSFER = 0.43,
+            INTAKE_WRIST_HOVER = 0.97,
+            INTAKE_WRIST_DOWN = 0.98,
+            INTAKE_WRIST_BACK = 0.45,
+            INTAKE_WRIST_SLIGHTLY_UP = 0.75,
+            INTAKE_WRIST_DROP_OFF = 0.6;
     public static double TURRET_DROP_OFF = 1.0,
-            TURRET_STRAIGHT = 0.26,
-            TURRET_LEFT_45_DEG = 0.665,
-            TURRET_RIGHT_45_DEG = 0.98;
-    public static double INTAKE_CLAW_CLOSE = 0.65,//0.22,
-            INTAKE_CLAW_OPEN = 0.9;//0.5;
-    public static double INTAKE_PIVOT_TILTED_LEFT = 0.81,//0.40,
-            INTAKE_PIVOT_TILTED_RIGHT = 0.49,//0.11,
-            INTAKE_PIVOT_HORIZONTAL = 0.32,//0.60,
-            INTAKE_PIVOT_VERTICAL = 0.32,//0.27,
-            INTAKE_PIVOT_VERTICAL_INVERSE = 0.0;
-    public static double DELIVERY_LEFT_TRANSFER = 0.605, DELIVERY_RIGHT_TRANSFER = 0.52,
-            DELIVERY_LEFT_FLAT = 0.5, DELIVERY_RIGHT_FLAT = 0.26,
-            DELIVERY_LEFT_UP = 0.54, DELIVERY_RIGHT_UP = 0.58,
-            DELIVERY_LEFT_CLIP = 0.605, DELIVERY_RIGHT_CLIP = 0.515,
-            DELIVERY_LEFT_DELIVER = 0.52, DELIVERY_RIGHT_DELIVER = 0.60;
+            TURRET_STRAIGHT = 0.28,
+            TURRET_LEFT_45_DEG = 0.04,
+            TURRET_RIGHT_45_DEG = 0.56;
+    public static double INTAKE_CLAW_CLOSE = 0.65,
+            INTAKE_CLAW_OPEN = 0.9;
+    public static double INTAKE_PIVOT_TILTED_LEFT = 0.48,
+            INTAKE_PIVOT_TILTED_RIGHT = 0.17,
+            INTAKE_PIVOT_HORIZONTAL = 0.60,
+            INTAKE_PIVOT_VERTICAL = 0.32,
+            INTAKE_PIVOT_VERTICAL_INVERSE = 0.88;
+    public static double DELIVERY_LEFT_TRANSFER = 0.19, DELIVERY_RIGHT_TRANSFER = 0.93,
+            DELIVERY_LEFT_FLAT = 0.75, DELIVERY_RIGHT_FLAT = 0.26,
+            DELIVERY_LEFT_UP = 0.6, DELIVERY_RIGHT_UP = 0.93,
+            DELIVERY_LEFT_CLIP = 0.15, DELIVERY_RIGHT_CLIP = 0.93,
+            DELIVERY_LEFT_DELIVER = 0.75, DELIVERY_RIGHT_DELIVER = 0.93;
 
-    public static double DELIVERY_CLAW_OPEN = 0.6, DELIVERY_CLAW_CLOSE = 0.3;
+    public static double DELIVERY_CLAW_OPEN = 0.55, DELIVERY_CLAW_CLOSE = 0.3;
 
-    public static double LEFT_HANG_INIT = 0.1, LEFT_HANG_ENGAGED = 0.17,
+    public static double LEFT_HANG_INIT = 0.1, LEFT_HANG_ENGAGED = 0.16,
             RIGHT_HANG_INIT = 0.92, RIGHT_HANG_ENGAGED = 0.86;
 
 
@@ -142,7 +145,7 @@ public class Robot2 extends RobotBase {
     }
 
     @Override
-    public double getIntakePivotPosition(IntakePivotTask.Position position) {
+    public double getIntakePivotPosition(SampleOrientation position) {
         switch(position) {
             case TILTED_LEFT:
                 return INTAKE_PIVOT_TILTED_LEFT;
@@ -257,6 +260,10 @@ public class Robot2 extends RobotBase {
 
 
     // Update Constants
+    @Override
+    public boolean verticalSlidesLeftIsReversed() {
+        return false;
+    }
     @Override
     public double getVerticalSlidesTicksPerInch() {
         return VERTICAL_TICKS_PER_INCH;

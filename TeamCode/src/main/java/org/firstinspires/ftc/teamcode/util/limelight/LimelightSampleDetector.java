@@ -1,15 +1,7 @@
 package org.firstinspires.ftc.teamcode.util.limelight;
 
-import android.util.Log;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Stack;
 
 @Config
 public class LimelightSampleDetector extends LimelightProcessorBase {
@@ -54,15 +46,15 @@ public class LimelightSampleDetector extends LimelightProcessorBase {
     }
 
     @Override
-    protected ObjectOrientation getOrientationFromAngle(double angle) { //angle from 0-180 degrees
+    protected SampleOrientation getOrientationFromAngle(double angle) { //angle from 0-180 degrees
         if(angle <= HORIZONTAL_THRESHOLD_MIN || angle >= HORIZONTAL_THRESHOLD_MAX) {
-            return ObjectOrientation.HORIZONTAL;
+            return SampleOrientation.HORIZONTAL;
         }else if(angle <= VERTICAL_THRESHOLD_MIN) {
-            return ObjectOrientation.TILTED_RIGHT;
+            return SampleOrientation.TILTED_RIGHT;
         }else if(angle >= VERTICAL_THRESHOLD_MAX) {
-            return ObjectOrientation.TILTED_LEFT;
+            return SampleOrientation.TILTED_LEFT;
         }else {
-            return ObjectOrientation.VERTICAL;
+            return SampleOrientation.VERTICAL;
         }
     }
 }

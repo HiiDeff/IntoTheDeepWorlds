@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.task.IntakeArmTask;
 import org.firstinspires.ftc.teamcode.task.IntakePivotTask;
 import org.firstinspires.ftc.teamcode.task.IntakeWristTask;
 import org.firstinspires.ftc.teamcode.task.IntakeTurretTask;
+import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 import org.firstinspires.ftc.teamcode.util.pid.PIDCoefficients;
 import org.firstinspires.ftc.teamcode.util.profile.ProfileConstraints;
 
@@ -142,7 +143,7 @@ public class Robot1 extends RobotBase {
     }
 
     @Override
-    public double getIntakePivotPosition(IntakePivotTask.Position position) {
+    public double getIntakePivotPosition(SampleOrientation position) {
         switch(position) {
             case TILTED_LEFT:
                 return INTAKE_PIVOT_TILTED_LEFT;
@@ -257,6 +258,10 @@ public class Robot1 extends RobotBase {
 
 
     // Update Constants
+    @Override
+    public boolean verticalSlidesLeftIsReversed() {
+        return true;
+    }
     @Override
     public double getVerticalSlidesTicksPerInch() {
         return VERTICAL_TICKS_PER_INCH;

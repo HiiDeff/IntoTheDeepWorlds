@@ -28,7 +28,7 @@ import org.firstinspires.ftc.teamcode.util.Utils;
 import org.firstinspires.ftc.teamcode.util.limelight.Coordinates;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightConfig;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightSampleDetector;
-import org.firstinspires.ftc.teamcode.util.limelight.ObjectOrientation;
+import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 
 @TeleOp(name = "Robot 1 Test w/ Limelight", group = "Test")
 @Config
@@ -80,7 +80,7 @@ public class Robot1Test extends LinearOpMode {
 //        robot.setIntakeArmPos(V5IntakeArmTask.Position.BACK);
 //        robot.setIntakeWristPos(V5IntakeWristTask.Position.TRANSFER);
 //        robot.setIntakeClawPos(V5IntakeClawTask.Position.OPEN);
-//        robot.setIntakePivotPos(V5IntakePivotTask.Position.VERTICAL);
+//        robot.setIntakePivotPos(V5SampleOrientation.VERTICAL);
 //        robot.setDeliveryClawPos(V5DeliveryClawTask.Position.OPEN);
 //        robot.setDiffyPos(V5DiffyTask.Position.FLAT);
 
@@ -98,7 +98,7 @@ public class Robot1Test extends LinearOpMode {
             multipleTelemetry.addData("objectXPos",objectPosition.x);
             multipleTelemetry.addData("objectYPos",objectPosition.y);
 
-            ObjectOrientation orientation = limelightSampleDetector.getObjectOrientation();
+            SampleOrientation orientation = limelightSampleDetector.getObjectOrientation();
             multipleTelemetry.addData("orientation",orientation.toString());
 
             multipleTelemetry.addData("vertical slide pos ticks", robot.getVerticalSlidesHeightTicks());
@@ -119,7 +119,7 @@ public class Robot1Test extends LinearOpMode {
                                 new HorizontalSlidesTask(robot, invKin.getY(), 1.0, 1500),
                                 new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
                                 new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
-                                new IntakePivotTask(robot, robot.getIntakePivotPosition(orientationToPivotPosition(orientation))+angleToPivotPosition(invKin.getAngle())),
+                                new IntakePivotTask(robot, robot.getIntakePivotPosition(orientation)+angleToPivotPosition(invKin.getAngle())),
                                 new IntakeWristTask(robot, IntakeWristTask.Position.HOVER),
                                 new IntakeTurretTask(robot, angleToServoPosition(invKin.getAngle())),
                                 new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
@@ -140,7 +140,7 @@ public class Robot1Test extends LinearOpMode {
 //                        new ParallelTask(
 //                                new V5HorizontalSlidesTask(robot, -0.5, 1.0, 1500),
 //                                new V5IntakeArmTask(robot, V5IntakeArmTask.Position.BACK),
-//                                new V5IntakePivotTask(robot, V5IntakePivotTask.Position.VERTICAL),
+//                                new V5IntakePivotTask(robot, V5SampleOrientation.VERTICAL),
 //                                new V5IntakeWristTask(robot, V5IntakeWristTask.Position.TRANSFER),
 //                                new V5TurretTask(robot, V5TurretTask.Position.STRAIGHT)
 //                        )
@@ -156,7 +156,7 @@ public class Robot1Test extends LinearOpMode {
                                 new HorizontalSlidesTask(robot, 0, 1.0, 1500),
                                 new IntakeArmTask(robot, IntakeArmTask.Position.TRANSFER),
                                 new IntakeClawTask(robot, IntakeClawTask.Position.CLOSE),
-                                new IntakePivotTask(robot, IntakePivotTask.Position.VERTICAL),
+                                new IntakePivotTask(robot, SampleOrientation.VERTICAL),
                                 new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
                                 new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT)
                         ),
@@ -226,19 +226,4 @@ public class Robot1Test extends LinearOpMode {
             return Utils.clamp((Robot1.INTAKE_PIVOT_VERTICAL - Robot1.INTAKE_PIVOT_TILTED_RIGHT)*angle/45.0, 0.0, 1.0);
         }
     }
-    private IntakePivotTask.Position orientationToPivotPosition(ObjectOrientation orientation) {
-        switch(orientation) {
-            case TILTED_LEFT:
-                return IntakePivotTask.Position.TILTED_LEFT;
-            case TILTED_RIGHT:
-                return IntakePivotTask.Position.TILTED_RIGHT;
-            case HORIZONTAL:
-                return IntakePivotTask.Position.HORIZONTAL;
-            case VERTICAL:
-            default:
-                return IntakePivotTask.Position.VERTICAL;
-        }
-    }
-
-
 }

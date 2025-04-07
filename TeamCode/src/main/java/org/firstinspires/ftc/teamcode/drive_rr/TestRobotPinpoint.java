@@ -31,14 +31,15 @@ public class TestRobotPinpoint extends PinpointDrive {
 
         // drive model parameters
         TRUE_PARAMS.inPerTick = 1.0;
-        TRUE_PARAMS.lateralInPerTick = 0.68838206056; //(20.248,8.229) (32.5204,16.6771) -> 8.4481/12.2724    // calculated myself (Trust this value). Heavy robot prevents lateral ramp from working well
+        TRUE_PARAMS.lateralInPerTick = 0.6917565598; //(20.248,8.229) (32.5204,16.6771) -> 8.4481/12.2724    // calculated myself (Trust this value). Heavy robot prevents lateral ramp from working well
+        // (27.5776-12.9116)/(47.2896-26.0885) = 14.666/21.2011 = 0.6917565598
         //RR gave me 0.5284068899336227
-        TRUE_PARAMS.trackWidthTicks = 14.809288072929494;
+        TRUE_PARAMS.trackWidthTicks = 14.931922905302441;
 
         // feedforward parameters (in tick units)
-        TRUE_PARAMS.kS = 1.2488987624858603;
-        TRUE_PARAMS.kV = 0.1293018136108477;
-        TRUE_PARAMS.kA = 0.03;
+        TRUE_PARAMS.kS = 1.163151239887608;
+        TRUE_PARAMS.kV = 0.13158833814790233;
+        TRUE_PARAMS.kA = 0.04;
 
         // path profile parameters (in inches)
         TRUE_PARAMS.maxWheelVel = 60;
@@ -60,8 +61,8 @@ public class TestRobotPinpoint extends PinpointDrive {
 
         MecanumDrive.PARAMS = TRUE_PARAMS;
 
-        PINPOINT_PARAMS.xOffset = -7.125;
-        PINPOINT_PARAMS.yOffset = 3.0;
+        PINPOINT_PARAMS.xOffset = -7.1;
+        PINPOINT_PARAMS.yOffset = 3.25;
 
         PINPOINT_PARAMS.encoderResolution = GoBildaPinpointDriverRR.goBILDA_4_BAR_POD;
 

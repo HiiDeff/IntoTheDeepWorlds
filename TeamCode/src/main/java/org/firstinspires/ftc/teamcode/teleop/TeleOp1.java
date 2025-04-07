@@ -256,8 +256,8 @@ public class TeleOp1 extends LinearOpMode {
                         new IntakeArmTask(robot, IntakeArmTask.Position.TRANSFER),
                         new DecisionTask(
                                 new SampleStateCondition(robot),
-                                new IntakePivotTask(robot, SampleOrientation.VERTICAL_INVERSE),
-                                new IntakePivotTask(robot, SampleOrientation.VERTICAL)
+                                new IntakePivotTask(robot, SampleOrientation.VERTICAL),
+                                new IntakePivotTask(robot, SampleOrientation.VERTICAL_INVERSE)
                         ),
                         new HorizontalSlidesTask(robot, -0.0, 1.0, 1500)
                 ),
@@ -276,7 +276,7 @@ public class TeleOp1 extends LinearOpMode {
                                                     new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
                                                     new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
                                                     new IntakePivotTask(robot, SampleOrientation.VERTICAL),
-                                                    new VerticalSlidesTask(robot, 29.0,1.0,2000)
+                                                    new VerticalSlidesTask(robot, 34.0,1.0,2000)
                                             )
                                     )
                             )

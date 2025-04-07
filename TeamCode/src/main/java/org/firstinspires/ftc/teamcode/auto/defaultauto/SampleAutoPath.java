@@ -14,19 +14,19 @@ import org.firstinspires.ftc.teamcode.drive.robot1.Robot1;
 public class SampleAutoPath extends SampleAuto {
 
     public static Pose2d
-            preloadDeliverPos = new Pose2d(2.2589, 22.2425, -0.3637),
-            sample1IntakePos = new Pose2d(5.6732, 17.8836, -0.2982),
-            sample1DeliverPos = new Pose2d(1.6785, 21.671, -0.452),
-            sample2IntakePos = new Pose2d(5.4798, 17.2887, -0.02),
-            sample2DeliverPos = new Pose2d(0.1476, 22.103, -0.7399),
-            sample3IntakePos = new Pose2d(13.2138, 15.2473, 0.7038),
-            sample3DeliverPos = new Pose2d(0.4657, 22.2228, -0.6653),
-            submersibleCyclePos = new Pose2d(50.5475, -7.3017, -Math.PI/2),
-            cycleDeliverPos = new Pose2d(1.8764, 21.3275, -0.4574);
+            preloadDeliverPos = new Pose2d(7.7412, 21.2012, -0.381),
+            sample1IntakePos = new Pose2d(7.7412, 21.2012, -0.381),
+            sample1DeliverPos = new Pose2d(5.8525, 23.1857, -0.1249),
+            sample2IntakePos = new Pose2d(5.8525, 23.1857, -0.1249),
+            sample2DeliverPos = new Pose2d(5.8525, 23.1857, -0.1249),
+            sample3IntakePos = new Pose2d(8.7623,20.5435,0.1907),
+            sample3DeliverPos = new Pose2d(6.373, 20.7887, -0.4325),
+            submersibleCyclePos = new Pose2d(58.5983, -15.0819, -Math.PI/2),
+            cycleDeliverPos = new Pose2d(6.373, 20.7887, -0.4325);
 
     @Override
     protected RobotBase createRobot(HardwareMap hardwareMap) {
-        return (Robot1) RobotFactory.createRobot(hardwareMap);
+        return (RobotBase) RobotFactory.createRobot(hardwareMap);
     }
 
     @Override

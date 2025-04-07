@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.task.DecisionTask;
 import org.firstinspires.ftc.teamcode.task.DeliveryClawTask;
 import org.firstinspires.ftc.teamcode.task.DeliveryTask;
 import org.firstinspires.ftc.teamcode.task.HorizontalSlidesTask;
+import org.firstinspires.ftc.teamcode.task.HorizontalSlidesWaitForTransferTask;
 import org.firstinspires.ftc.teamcode.task.IntakeArmTask;
 import org.firstinspires.ftc.teamcode.task.IntakeClawTask;
 import org.firstinspires.ftc.teamcode.task.IntakePivotTask;
@@ -23,6 +24,7 @@ import org.firstinspires.ftc.teamcode.task.RuntimeDrivingTask;
 import org.firstinspires.ftc.teamcode.task.SeriesTask;
 import org.firstinspires.ftc.teamcode.task.SleepTask;
 import org.firstinspires.ftc.teamcode.task.Task;
+import org.firstinspires.ftc.teamcode.task.UnboundedHorizontalSlidesTask;
 import org.firstinspires.ftc.teamcode.task.VerticalSlidesTask;
 import org.firstinspires.ftc.teamcode.util.limelight.Coordinates;
 import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
@@ -34,7 +36,7 @@ public abstract class SampleAuto extends AutoBase {
 
     public static int verticalSlidesDelay = 500;
     public static int DELIVER_DRIVING_SPEED = 20, DELIVER_CLAW_DELAY = 100, INTAKE_DELAY = 100;
-    public static double DELIVERY_HEIGHT_INCH = 28.0;
+    public static double DELIVERY_HEIGHT_INCH = 34.0;
     public static int BUCKET_TO_SUB_START_TANGENT_DEG = -20, BUCKET_TO_SUB_END_TANGENT_DEG = -30;
 
     @Override
@@ -71,15 +73,15 @@ public abstract class SampleAuto extends AutoBase {
                         )
                 )
         );
-        task.add(
-                new RuntimeDrivingTask(
-                        robot,
-                        builder -> {
-                            Pose2d pos = getSample1IntakePos();
-                            return builder.strafeToLinearHeading(pos.position, pos.heading, new TranslationalVelConstraint(60)).build();
-                        }
-                )
-        );
+//        task.add(
+//                new RuntimeDrivingTask(
+//                        robot,
+//                        builder -> {
+//                            Pose2d pos = getSample1IntakePos();
+//                            return builder.strafeToLinearHeading(pos.position, pos.heading, new TranslationalVelConstraint(60)).build();
+//                        }
+//                )
+//        );
 
         return task;
     }
@@ -89,16 +91,15 @@ public abstract class SampleAuto extends AutoBase {
         state = AutoState.SPIKE_MARKS;
         SeriesTask task = new SeriesTask();
         int spikeMarkNumber = autoStates.getSpikeMarkNumber();
-        Log.i("spike mark number", spikeMarkNumber+"");
         task.add(
                 new ParallelTask(
+                        //Delivery Task taking too long to flip around maybe? check.
                         new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.TRANSFER),
                         new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.TRANSFER),
                         new VerticalSlidesTask(robot, 0.0,1.0,500),
                         new SeriesTask(
                                 new ParallelTask(
                                         new HorizontalSlidesTask(robot, 20.3,1.0,250),
-                                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
                                         new IntakeArmTask(robot, IntakeArmTask.Position.DOWN),
                                         new IntakeWristTask(robot, IntakeWristTask.Position.DOWN)
                                 ),
@@ -119,56 +120,49 @@ public abstract class SampleAuto extends AutoBase {
                                     else pos = getSample3DeliverPos();
                                     return builder.strafeToLinearHeading(pos.position, pos.heading, new TranslationalVelConstraint(60)).build();
                                 }
-                        ),
-                        new SeriesTask(
-                                new IntakeArmTask(robot, IntakeArmTask.Position.SLIGHTLY_UP),
-                                new ParallelTask(
-                                        new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
-                                        new IntakeArmTask(robot, IntakeArmTask.Position.TRANSFER),
-                                        new DecisionTask(
-                                                new SampleStateCondition(robot),
-                                                new IntakePivotTask(robot, SampleOrientation.VERTICAL_INVERSE),
-                                                new IntakePivotTask(robot, SampleOrientation.VERTICAL)
-                                        ),
-                                        new HorizontalSlidesTask(robot, -0.0, 0.8, 1000)
-                                )
                         )
+//                        new UnboundedHorizontalSlidesTask(robot, -1.0, 1.0),
+//                        new SeriesTask(
+//                                new IntakeArmTask(robot, IntakeArmTask.Position.HOVER), //SLIGHTLY_UP ?
+//                                new ParallelTask(
+//                                        new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
+//                                        new IntakeArmTask(robot, IntakeArmTask.Position.TRANSFER),
+//                                        new DecisionTask(
+//                                                new SampleStateCondition(robot),
+//                                                new IntakePivotTask(robot, SampleOrientation.VERTICAL),
+//                                                new IntakePivotTask(robot, SampleOrientation.VERTICAL_INVERSE)
+//                                        )
+//                                ),
+//                                new HorizontalSlidesWaitForTransferTask(robot, 0.0,1500),
+//                                new ParallelTask(
+//                                        new DeliveryClawTask(robot, DeliveryClawTask.Position.CLOSE),
+//                                        new IntakeClawTask(robot, IntakeClawTask.Position.OPEN)
+//                                ),
+//                                new ParallelTask(
+//                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.UP),
+//                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.UP),
+//                                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
+//                                        new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
+//                                        new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
+//                                        new IntakePivotTask(robot, SampleOrientation.VERTICAL),
+//                                        new VerticalSlidesTask(robot, DELIVERY_HEIGHT_INCH,1.0,500)
+//                                )
+//                        )
                 )
         );
-        task.add(
-                new ParallelTask(
-                        new ParallelTask(
-                                new HorizontalSlidesTask(robot, -2.0, 1.0, 700),
-                                new SeriesTask(
-                                        new ParallelTask(
-                                                new DeliveryClawTask(robot, DeliveryClawTask.Position.CLOSE),
-                                                new IntakeClawTask(robot, IntakeClawTask.Position.OPEN)
-                                        ),
-                                        new ParallelTask(
-                                                new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.UP),
-                                                new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.UP),
-                                                new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
-                                                new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
-                                                new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
-                                                new IntakePivotTask(robot, SampleOrientation.VERTICAL),
-                                                new VerticalSlidesTask(robot, DELIVERY_HEIGHT_INCH,1.0,500)
-                                        )
-                                )
-                        )
-                )
-        );
+
         if(spikeMarkNumber<3) {
             task.add(
                     new ParallelTask(
                             new SeriesTask(
-                                    new ParallelTask(
-                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.DELIVER),
-                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.DELIVER),
-                                            new SeriesTask(
-                                                    new SleepTask(DELIVER_CLAW_DELAY),
-                                                    new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
-                                            )
-                                    ),
+//                                    new ParallelTask(
+//                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.DELIVER),
+//                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.DELIVER),
+//                                            new SeriesTask(
+//                                                    new SleepTask(DELIVER_CLAW_DELAY),
+//                                                    new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
+//                                            )
+//                                    ),
                                     new RuntimeDrivingTask(
                                             robot,
                                             builder -> {
@@ -178,27 +172,27 @@ public abstract class SampleAuto extends AutoBase {
                                                 return builder.strafeToLinearHeading(pos.position, pos.heading).build();
                                             }
                                     )
-                            ),
-                            new HorizontalSlidesTask(robot, 20.3,1.0,900),
-                            new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
-                            new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
-                            new IntakeWristTask(robot, IntakeWristTask.Position.HOVER),
-                            new IntakePivotTask(robot, spikeMarkNumber==2? SampleOrientation.TILTED_RIGHT:SampleOrientation.VERTICAL),
-                            new IntakeClawTask(robot, IntakeClawTask.Position.OPEN)
+                            )
+//                            new HorizontalSlidesTask(robot, 20.3,1.0,900),
+//                            new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
+//                            new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
+//                            new IntakeWristTask(robot, IntakeWristTask.Position.HOVER),
+//                            new IntakePivotTask(robot, spikeMarkNumber==2? SampleOrientation.TILTED_RIGHT:SampleOrientation.VERTICAL),
+//                            new IntakeClawTask(robot, IntakeClawTask.Position.OPEN)
                     )
             );
         } else {
             task.add(
                     new ParallelTask(
                             new SeriesTask(
-                                    new ParallelTask(
-                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.DELIVER),
-                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.DELIVER),
-                                            new SeriesTask(
-                                                    new SleepTask(DELIVER_CLAW_DELAY),
-                                                    new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
-                                            )
-                                    ),
+//                                    new ParallelTask(
+//                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.DELIVER),
+//                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.DELIVER),
+//                                            new SeriesTask(
+//                                                    new SleepTask(DELIVER_CLAW_DELAY),
+//                                                    new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
+//                                            )
+//                                    ),
                                     new RuntimeDrivingTask(
                                             robot,
                                             builder -> {
@@ -209,13 +203,13 @@ public abstract class SampleAuto extends AutoBase {
                                                         .build();
                                             }
                                     )
-                            ),
-                            new HorizontalSlidesTask(robot, 0.0,1.0,750),
-                            new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
-                            new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
-                            new IntakeWristTask(robot, IntakeWristTask.Position.BACK),
-                            new IntakePivotTask(robot, SampleOrientation.VERTICAL),
-                            new IntakeClawTask(robot, IntakeClawTask.Position.OPEN)
+                            )
+//                            new HorizontalSlidesTask(robot, 0.0,1.0,750),
+//                            new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
+//                            new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
+//                            new IntakeWristTask(robot, IntakeWristTask.Position.BACK),
+//                            new IntakePivotTask(robot, SampleOrientation.VERTICAL),
+//                            new IntakeClawTask(robot, IntakeClawTask.Position.OPEN)
                     )
             );
         }

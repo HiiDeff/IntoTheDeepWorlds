@@ -30,7 +30,7 @@ public class Robot2 extends RobotBase {
     public static double VERTICAL_TICKS_PER_INCH  = 1127/34.5, VERTICAL_EXTEND_MAX_INCH = 34.5;
 
     // PID + Profile Constraints
-    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.015, 0.0, 0.0,0.27); //0.14 min ff, 0.4 = max ff, so do 0.27
+    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.015, 0.0, 0.0,0.24); //0.14 min ff, 0.4 = max ff, so do 0.27
     //min stand power = 0.1, max 0.33
 
     public static ProfileConstraints DELIVERY_ARM_CONSTRAINTS = new ProfileConstraints(10, 12, 16);
@@ -53,8 +53,8 @@ public class Robot2 extends RobotBase {
             TURRET_STRAIGHT = 0.28,
             TURRET_LEFT_45_DEG = 0.04,
             TURRET_RIGHT_45_DEG = 0.56;
-    public static double INTAKE_CLAW_CLOSE = 0.65,
-            INTAKE_CLAW_OPEN = 0.9;
+    public static double INTAKE_CLAW_CLOSE = 0.66,
+            INTAKE_CLAW_OPEN = 0.92;
     public static double INTAKE_PIVOT_TILTED_LEFT = 0.48,
             INTAKE_PIVOT_TILTED_RIGHT = 0.17,
             INTAKE_PIVOT_HORIZONTAL = 0.60,
@@ -90,13 +90,13 @@ public class Robot2 extends RobotBase {
 
         // drive model parameters
         p.inPerTick = 1.0;
-        p.lateralInPerTick = 1.213675706866705135603000577034; // p.inPerTick;
-        p.trackWidthTicks = 14.245478953115196;
+        p.lateralInPerTick = 0.6917565598; // p.inPerTick;
+        p.trackWidthTicks = 14.931922905302441;
 
         // feedforward parameters (in tick units)
-        p.kS = 1.2800645469636986;
-        p.kV = 0.13301959837487504;
-        p.kA = 0.03;
+        p.kS = 1.163151239887608;
+        p.kV = 0.13158833814790233;
+        p.kA = 0.04;
 
         // path profile parameters (in inches)
         p.maxWheelVel = 60;
@@ -118,13 +118,13 @@ public class Robot2 extends RobotBase {
 
 
         PinpointDrive.Params pinpointParams = PinpointDrive.PARAMS;
-        pinpointParams.xOffset = 3.1091754774386136;
-        pinpointParams.yOffset = 1.9439441107387374;
+        pinpointParams.xOffset = -7.1;
+        pinpointParams.yOffset = 3.25;
 
         pinpointParams.encoderResolution = GoBildaPinpointDriverRR.goBILDA_4_BAR_POD;
 
-        pinpointParams.xDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
-        pinpointParams.yDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
+        pinpointParams.xDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
+        pinpointParams.yDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
     }
 
     @Override

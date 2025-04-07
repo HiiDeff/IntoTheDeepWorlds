@@ -170,7 +170,7 @@ public abstract class RobotBase extends PinpointDrive {
         setIntakeClawPos(IntakeClawTask.Position.OPEN);
         setIntakePivotPos(SampleOrientation.VERTICAL);
         setDeliveryClawPos(DeliveryClawTask.Position.CLOSE);
-        setDeliveryPos(DeliveryTask.Position.FLAT);
+        setDeliveryPos(DeliveryTask.Position.UP);
         setTurretPos(IntakeTurretTask.Position.STRAIGHT);
     }
 

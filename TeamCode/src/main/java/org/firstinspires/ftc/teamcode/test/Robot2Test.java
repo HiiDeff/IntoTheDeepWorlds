@@ -40,15 +40,16 @@ public class Robot2Test extends LinearOpMode {
     private GamePad gamepad;
     private Task task = null;
     public MultipleTelemetry multipleTelemetry;
+    public static boolean isClawOpen = true;
 
     // Vision
 
     private LimelightSampleDetector limelightSampleDetector;
     public static LimelightConfig LLConfig = new LimelightConfig(640, 480,
             -30, 54,41,
-            6.75,-0.5,10.55,
-            0, 0.7/5.3); //ROBOT 5 MEASUREMENTS
-    public static int pipelineNo = 7;
+            3.75,1.0,10.1,
+            0.4/4.6, 1.5/10.5); //ROBOT 5 MEASUREMENTS //error scaler accounts for lighting
+    public static int pipelineNo = 6;
     public static double TURRET_LENGTH_INCH = 5.0;
 
     // Position Tuning
@@ -116,11 +117,10 @@ public class Robot2Test extends LinearOpMode {
             multipleTelemetry.addData("y to object", invKin.getY());
 
             if(gamepad.onceA()) {
-                task = new SeriesTask(
-                        new IntakeTurretTask(robot, IntakeTurretTask.Position.LEFT_45_DEG),
-                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT)
-                );
+                task = new IntakeClawTask(robot, isClawOpen?IntakeClawTask.Position.CLOSE:IntakeClawTask.Position.OPEN);
+                isClawOpen = !isClawOpen;
             }
+
 
             if(gamepad.onceX()) {
 

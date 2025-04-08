@@ -22,6 +22,9 @@ public class Coordinates {
         this.z = z;
         this.angle = angle;
     }
+    public String toString() {
+        return "("+x+" "+y+" "+z+" "+angle+")";
+    }
 
     public double getX() {
         return x;

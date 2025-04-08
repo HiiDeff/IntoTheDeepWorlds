@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.common.AutoStates;
+import org.firstinspires.ftc.teamcode.drive.IntakeSampleState;
 import org.firstinspires.ftc.teamcode.drive.RobotBase;
 import org.firstinspires.ftc.teamcode.drive.SensorUpdateThread;
 import org.firstinspires.ftc.teamcode.task.Task;
@@ -23,7 +24,7 @@ public abstract class AutoBase extends LinearOpMode {
     public static int AA_NUM_OF_SPIKE_MARKS = 3, AA_NUM_OF_CYCLES = 4;
 
     public static int INIT_DELAY_TIME = 0;
-    public static int AA_TIME_FOR_A_CYCLE = 5000;
+    public static int AA_TIME_FOR_A_CYCLE = 2000;
     public static int AA_TIME_FOR_PARK = 0000; //0 for now because prioritize delivering a sample over 3 point hang
 
     // Moving velocity constraints
@@ -41,6 +42,7 @@ public abstract class AutoBase extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot = createRobot(hardwareMap);
         resetRobot();
+        robot.setLimelightPipeline(IntakeSampleState.SampleColor.COLOR_YELLOW);
         while (opModeInInit()) {
             telemetry.addData("initializing", 1);
             telemetry.update();
@@ -54,7 +56,7 @@ public abstract class AutoBase extends LinearOpMode {
         sensorUpdateThread = new SensorUpdateThread(robot);
         sensorUpdateThread.start();
 
-//        robot.startLimelight();
+        robot.startLimelight();
 
         ElapsedTime cycleTimer = new ElapsedTime();
 
@@ -62,17 +64,20 @@ public abstract class AutoBase extends LinearOpMode {
         while (opModeIsActive() && !done && task != null) {
             robot.updateEverything();
             robot.updateLimelight();
+            Log.i("edbug sample cycles", robot.getLimelightObjectPosition().toString());
             if(timeToFinish() && state != AutoState.FINISH) {
                 task.cancel();
                 task = createFinishTask();
             } else if(task.perform()) {
-                if(hasSpikeMarksLeft()) {
+                if(state == AutoState.TURN_TO_SAMPLE){
+                    task = createCycleTask();
+                } else if(hasSpikeMarksLeft()) {
                     autoStates.setSpikeMarkNumber(autoStates.getSpikeMarkNumber() + 1);
                     Log.i("spike mark number", ""+autoStates.getSpikeMarkNumber());
                     task = createSpikeMarkTask();
                 } else if(hasTimeForOneMoreCycle()) {
                     autoStates.setCycleNumber(autoStates.getCycleNumber() + 1);
-                    task = createCycleTask();
+                    task = createTurnToSampleTask();
                 } else if(state != AutoState.FINISH) {
                     task = createFinishTask();
                 } else {
@@ -90,7 +95,7 @@ public abstract class AutoBase extends LinearOpMode {
         }
 
         sensorUpdateThread.interrupt();
-//        robot.stopLimelight();
+        robot.stopLimelight();
     }
 
     private boolean timeToFinish() {
@@ -118,6 +123,7 @@ public abstract class AutoBase extends LinearOpMode {
     protected abstract Task createSpikeMarkTask();
     protected abstract Task createCycleTask();
     protected abstract Task createFinishTask();
+    protected abstract Task createTurnToSampleTask();
     protected double toR(double degree) {
         return Math.toRadians(degree);
     }
@@ -131,6 +137,7 @@ public abstract class AutoBase extends LinearOpMode {
         START,
         SPIKE_MARKS,
         CYCLE,
-        FINISH
+        FINISH,
+        TURN_TO_SAMPLE
     }
 }

@@ -7,8 +7,8 @@ import org.firstinspires.ftc.teamcode.drive.RobotBase;
 import org.firstinspires.ftc.teamcode.util.Utils;
 
 /**
- * 5-turn torque servo has 40 RPM under 4.8 v and 4.5 turn max rotation.
- */
+ * Axon Max+ servo has 0.14sec/60° -> 1/6/0.14*60 RPM
+ * under 4.8 v and 355 degree max rotation. */
 @Config
 public class DeliveryTask extends TimedTask {
     public enum WhichDelivery {
@@ -17,8 +17,8 @@ public class DeliveryTask extends TimedTask {
     }
 
 
-    private static final int RPM = 20; // 40 RPM without load
-    private static final int MAX_ROTATION_DEGREE = 1620; // 4.5 turn
+    private static final int RPM = 71;
+    private static final int MAX_ROTATION_DEGREE = 355;
 
 
     private final RobotBase robot;

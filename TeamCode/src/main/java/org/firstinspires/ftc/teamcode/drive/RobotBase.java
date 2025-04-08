@@ -68,10 +68,14 @@ public abstract class RobotBase extends PinpointDrive {
     public final Limelight3A limelight;
     public static LimelightConfig LLConfig = new LimelightConfig(640, 480,
             -30, 54,41,
-            7.5,6.0,14.3,
-            0.081081081, 0.12);
+            3.75,0.9,10.1,
+            0.4/4.6, 1.5/10.5);
     private final LimelightSampleDetector limelightSampleDetector;
-    private int pipelineNo = 5;
+    public static int LIMELIGHT_YELLOW_PIPELINE_IDX = 5,
+            LIMELIGHT_RED_PIPELINE_IDX = 6,
+            LIMELIGHT_BLUE_PIPELINE_IDX = 7;
+    public static double TURRET_DIST_FROM_ROBOT_CENTER = 6.0;
+
 
     //Sensors
 
@@ -139,7 +143,7 @@ public abstract class RobotBase extends PinpointDrive {
         // Limelight:
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelightSampleDetector = new LimelightSampleDetector(limelight, LLConfig);
-        limelight.pipelineSwitch(pipelineNo);
+        limelight.pipelineSwitch(LIMELIGHT_YELLOW_PIPELINE_IDX);
 
         // Color Sensors:
         intakeColorSensor = hardwareMap.get(RevColorSensorV3.class, "iColor");
@@ -359,6 +363,17 @@ public abstract class RobotBase extends PinpointDrive {
     }
 
     ///////////////////* LIMELIGHT UTILS *///////////////////
+    public void setLimelightPipeline(IntakeSampleState.SampleColor sampleColor) {
+        switch(sampleColor) {
+            case COLOR_RED:
+                limelight.pipelineSwitch(LIMELIGHT_RED_PIPELINE_IDX);
+            case COLOR_BLUE:
+                limelight.pipelineSwitch(LIMELIGHT_BLUE_PIPELINE_IDX);
+            case COLOR_YELLOW:
+            default:
+                limelight.pipelineSwitch(LIMELIGHT_YELLOW_PIPELINE_IDX);
+        }
+    }
     public void startLimelight() {
         limelight.start();
     }
@@ -368,6 +383,9 @@ public abstract class RobotBase extends PinpointDrive {
     public void sortLimelightEntries() { limelightSampleDetector.sortCoordinates(); }
     public void stopLimelight() {
         limelight.stop();
+    }
+    public double getAngleToSample(Coordinates pos) {
+        return Math.atan(pos.getX()/(TURRET_DIST_FROM_ROBOT_CENTER+pos.getY()));
     }
     public Coordinates getLimelightObjectPosition() {
         return limelightSampleDetector.getObjectPosition();

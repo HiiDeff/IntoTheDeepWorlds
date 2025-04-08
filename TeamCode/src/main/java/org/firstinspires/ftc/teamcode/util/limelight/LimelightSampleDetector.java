@@ -9,6 +9,7 @@ public class LimelightSampleDetector extends LimelightProcessorBase {
     //in degrees
     public static double HORIZONTAL_THRESHOLD_MIN = 10.0, HORIZONTAL_THRESHOLD_MAX = 170.0;
     public static double VERTICAL_THRESHOLD_MIN = 70.0, VERTICAL_THRESHOLD_MAX = 110.0;
+    public static double TURRET_DIST_FROM_ROBOT_CENTER = 6.0;
     public static double PIXEL_HEIGHT = 1.0;
 
     public LimelightSampleDetector(Limelight3A limelight, LimelightConfig LLConfig) {
@@ -41,7 +42,9 @@ public class LimelightSampleDetector extends LimelightProcessorBase {
 //        Log.i("objectAngleWithHorizontal",""+objectAngleWithHorizontal);
 //        Log.i("xAngleWithObject", ""+xAngleWithObject);
 
-        double angleToObject = Math.atan(xDistInch/yDistInch);
+        double angleToObject = Math.atan(xDistInch/(TURRET_DIST_FROM_ROBOT_CENTER+yDistInch));
+
+
         return new Coordinates(xDistInch, yDistInch, angleToObject);
     }
 

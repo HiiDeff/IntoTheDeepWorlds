@@ -555,7 +555,7 @@ public class MecanumDrive {
                 new TrajectoryBuilderParams(
                         1e-6,
                         new ProfileParams(
-                                0.25, 0.1, 1e-2
+                                0.25, 0.25, 1e-2
                         )
                 ),
                 beginPose, 0.0, // TODO: cry changing this to decrease cycle times?

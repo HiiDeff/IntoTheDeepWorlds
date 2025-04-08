@@ -41,7 +41,7 @@ public abstract class LimelightProcessorBase {
             return sortedCoordinates.get(0);
         }
         else {
-            return new Coordinates(-1, -1);
+            return new Coordinates(0, 0, Math.PI/6);
         }
     }
     public synchronized SampleOrientation getObjectOrientation() {

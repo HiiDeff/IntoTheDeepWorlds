@@ -37,7 +37,7 @@ public abstract class RobotBase extends PinpointDrive {
     // Vertical Slides Constants
     public static double VERTICAL_EXTEND_MIN_IN = -0.2, VERTICAL_EXTEND_MAX_IN = 30.0; //actually 29
     public static double VERTICAL_TICKS_PER_INCH = 938.0/29;
-    public static double VERTICAL_SLIDE_DOWN_POWER_TELEOP = -0.3, VERTICAL_SLIDE_DOWN_POWER_AUTO = -0.5;
+    public static double VERTICAL_SLIDE_DOWN_POWER_TELEOP = -0.5, VERTICAL_SLIDE_DOWN_POWER_AUTO = -0.7;
 
     // Horizontal Slides Constants
     public static double HORIZONTAL_EXTEND_MIN_IN = -2.0, HORIZONTAL_EXTEND_MAX_IN = 21.5;
@@ -175,15 +175,8 @@ public abstract class RobotBase extends PinpointDrive {
         setIntakeClawPos(IntakeClawTask.Position.OPEN);
         setIntakePivotPos(SampleOrientation.VERTICAL);
         setDeliveryClawPos(DeliveryClawTask.Position.CLOSE);
-        setDeliveryPos(DeliveryTask.Position.UP);
+        setDeliveryPos(DeliveryTask.Position.INIT);
         setTurretPos(IntakeTurretTask.Position.STRAIGHT);
-    }
-
-    public void autoClipInit() {
-//        setIntakeArmPos(IntakeArmTask.Position.TRANSFER);
-////        deliveryArm.setPosition(getDeliveryArmServoPosition(DeliveryArmTask.Position.FLAT));
-//        setClawPosition(ClawTask.ClawPosition.CLOSE);
-//        swipeStick.setPosition(SwipeStickTask.getTargetPos(SwipeStickTask.Position.IN));
     }
 
     ///////////////////* UPDATES *///////////////////

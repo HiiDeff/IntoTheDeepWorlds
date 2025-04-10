@@ -60,7 +60,8 @@ public class DeliveryTask extends TimedTask {
         FLAT,
         UP,
         CLIP,
-        DELIVER
+        DELIVER,
+        INIT
     }
 }
 

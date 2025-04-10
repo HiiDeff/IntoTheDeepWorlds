@@ -31,7 +31,7 @@ public class VerticalSlidesTask extends TimedTask{
             started = true;
             robot.setVerticalSlidesHeight(targetHeight);
         }
-        if (Math.abs(robot.getVerticalSlidesHeightInch() - targetHeight) < 0.5) {
+        if (Math.abs(robot.getVerticalSlidesHeightInch() - targetHeight) < 1.0) {
             cancel();
             return true;
         }
@@ -40,7 +40,7 @@ public class VerticalSlidesTask extends TimedTask{
 
     @Override
     public void cancel() {
-        if (targetHeight < 1) {
+        if (targetHeight < 0.1) {
             robot.setVerticalSlidePowerWithoutEncoder(0.0);
         }
     }

@@ -18,7 +18,7 @@ public class HorizontalSlidesWaitForTransferTask extends TimedTask {
 
     @Override
     protected boolean performInternal() {
-        return Math.abs(robot.getHorizontalSlideDistInch() - distInInches) < 0.5;
+        return Math.abs(robot.getHorizontalSlideDistInch() - distInInches) < 0.7;
     }
 
     @Override

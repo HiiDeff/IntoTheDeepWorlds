@@ -13,15 +13,15 @@ import org.firstinspires.ftc.teamcode.drive.RobotFactory;
 public class SampleAutoPath extends SampleAuto {
 
     public static Pose2d
-            preloadDeliverPos = new Pose2d(7.1656, 21.8393, -0.3751),
-            sample1IntakePos = new Pose2d(7.1656, 21.8393, -0.3751),
+            preloadDeliverPos = new Pose2d(7.1656, 21.8393, -0.3651),
+            sample1IntakePos = new Pose2d(7.1656, 21.8393, -0.3651),
             sample1DeliverPos = new Pose2d(5.8525, 23.1857, -0.0849),
-            sample2IntakePos = new Pose2d(5.1525, 23.1857, -0.0849),
-            sample2DeliverPos = new Pose2d(5.1525, 23.1857, -0.1249),
-            sample3IntakePos = new Pose2d(7.7623,19.2435,0.1707),
-            sample3DeliverPos = new Pose2d(5.8562, 21.2533, -0.4507),
+            sample2IntakePos = new Pose2d(5.1525, 20, -0.0449),
+            sample2DeliverPos = new Pose2d(5.1525, 23.1857, -0.20),
+            sample3IntakePos = new Pose2d(7.7623,21.5435,0.1707),
+            sample3DeliverPos = new Pose2d(5.3, 21.7, -0.4),
             submersibleCyclePos = new Pose2d(58.5983, -11.5819, -Math.PI/2),
-            cycleDeliverPos = new Pose2d(5.8562, 21.2533, -0.4507);
+            cycleDeliverPos = new Pose2d(4.3, 20.2, -0.5);
 
     @Override
     protected RobotBase createRobot(HardwareMap hardwareMap) {

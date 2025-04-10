@@ -30,7 +30,7 @@ public class Robot2 extends RobotBase {
     public static double VERTICAL_TICKS_PER_INCH  = 1127/34.5, VERTICAL_EXTEND_MAX_INCH = 34.5;
 
     // PID + Profile Constraints
-    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.008, 0.0, 0.0,0.24); //0.14 min ff, 0.4 = max ff, so do 0.27
+    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.004, 0.0, 0.0,0.27); //0.14 min ff, 0.4 = max ff, so do 0.27
     //min stand power = 0.1, max 0.33
 
     public static ProfileConstraints DELIVERY_ARM_CONSTRAINTS = new ProfileConstraints(10, 12, 16);
@@ -43,12 +43,12 @@ public class Robot2 extends RobotBase {
             INTAKE_ARM_SLIGHTLY_UP = 0.34,
             INTAKE_ARM_OBS_ZONE = 0.54;
 
-    public static double INTAKE_WRIST_TRANSFER = 0.43,
-            INTAKE_WRIST_HOVER = 0.96,
-            INTAKE_WRIST_DOWN = 0.96,
-            INTAKE_WRIST_BACK = 0.45,
-            INTAKE_WRIST_SLIGHTLY_UP = 0.75,
-            INTAKE_WRIST_OBS_ZONE = 0.75;
+    public static double INTAKE_WRIST_TRANSFER = 0.19,
+            INTAKE_WRIST_HOVER = 0.86,
+            INTAKE_WRIST_DOWN = 0.86,
+            INTAKE_WRIST_BACK = 0.21,
+            INTAKE_WRIST_SLIGHTLY_UP = 0.59,
+            INTAKE_WRIST_OBS_ZONE = 0.59;
     public static double TURRET_OBS_ZONE = 0.99,
             TURRET_STRAIGHT = 0.36,
             TURRET_LEFT_45_DEG = 0.15, //0.10 but then the servos get weird
@@ -60,11 +60,12 @@ public class Robot2 extends RobotBase {
             INTAKE_PIVOT_HORIZONTAL = 0.63,
             INTAKE_PIVOT_VERTICAL = 0.3,
             INTAKE_PIVOT_VERTICAL_INVERSE = 0.95;
-    public static double DELIVERY_LEFT_TRANSFER = 0.21, DELIVERY_RIGHT_TRANSFER = 0.91,
-            DELIVERY_LEFT_FLAT = 0.75, DELIVERY_RIGHT_FLAT = 0.26,
+    public static double DELIVERY_LEFT_TRANSFER = 0.207, DELIVERY_RIGHT_TRANSFER = 0.91,
+            DELIVERY_LEFT_FLAT = 0.76, DELIVERY_RIGHT_FLAT = 0.26,
             DELIVERY_LEFT_UP = 0.5, DELIVERY_RIGHT_UP = 0.91,
             DELIVERY_LEFT_CLIP = 0.15, DELIVERY_RIGHT_CLIP = 0.91,
-            DELIVERY_LEFT_DELIVER = 0.75, DELIVERY_RIGHT_DELIVER = 0.91;
+            DELIVERY_LEFT_DELIVER = 0.68, DELIVERY_RIGHT_DELIVER = 0.91,
+            DELIVERY_LEFT_INIT = 0.64, DELIVER_RIGHT_INIT = 0.91;
 
     public static double DELIVERY_CLAW_OPEN = 0.55, DELIVERY_CLAW_CLOSE = 0.3;
 
@@ -231,6 +232,8 @@ public class Robot2 extends RobotBase {
                     return DELIVERY_LEFT_UP;
                 case CLIP:
                     return DELIVERY_LEFT_CLIP;
+                case INIT:
+                    return DELIVERY_LEFT_INIT;
                 case DELIVER:
                 default:
                     return DELIVERY_LEFT_DELIVER;
@@ -245,6 +248,8 @@ public class Robot2 extends RobotBase {
                     return DELIVERY_RIGHT_UP;
                 case CLIP:
                     return DELIVERY_RIGHT_CLIP;
+                case INIT:
+                    return DELIVER_RIGHT_INIT;
                 case DELIVER:
                 default:
                     return DELIVERY_RIGHT_DELIVER;
@@ -281,6 +286,4 @@ public class Robot2 extends RobotBase {
     public PIDCoefficients getVerticalSlidesPidCoefficients() {
         return VERTICAL_SLIDES_PID_COEFFICIENTS;
     }
-
-
 }

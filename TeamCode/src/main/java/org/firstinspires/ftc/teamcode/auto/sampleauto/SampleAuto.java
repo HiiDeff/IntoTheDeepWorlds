@@ -32,10 +32,11 @@ import org.firstinspires.ftc.teamcode.common.InvKin;
 @Config
 public abstract class SampleAuto extends SampleAutoBase {
 
-    public static int verticalSlidesDelay = 500, DELIVER_EXTEND_MIN_TIME = 1500;
-    public static int DELIVER_DRIVING_SPEED = 20, DELIVER_CLAW_DELAY = 100, INTAKE_DELAY = 100;
+    public static int DELIVER_EXTEND_MIN_TIME = 800;
+    public static int DELIVER_CLAW_DELAY = 100, INTAKE_DELAY = 100, DELIVER_DELAY = 250, CYCLE_DRIVE_TO_DELIVER_DELAY = 500, WAIT_AT_SUB_TIME = 250;
     public static double DELIVERY_HEIGHT_INCH = 34.0;
-    public static int BUCKET_TO_SUB_START_TANGENT_DEG = -30, BUCKET_TO_SUB_END_TANGENT_DEG = -60;
+    public static int BUCKET_TO_SUB_START_TANGENT_DEG = -40, BUCKET_TO_SUB_END_TANGENT_DEG = -60;
+    public static double TO_SUB_BEGIN_END_VELO = 0.0;
 
     @Override
     protected Task createStartTask() {
@@ -102,6 +103,7 @@ public abstract class SampleAuto extends SampleAutoBase {
         //transfer
         task.add(
                 new ParallelTask(
+                        new VerticalSlidesTask(robot, 0.0, 1.0, 1000),
                         new SeriesTask(
                                 new SleepTask(1000),
                                 new RuntimeDrivingTask(
@@ -131,6 +133,7 @@ public abstract class SampleAuto extends SampleAutoBase {
                                                     new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
                                             )
                                     ),
+                                    new SleepTask(DELIVER_DELAY),
                                     new RuntimeDrivingTask(
                                             robot,
                                             builder -> {
@@ -168,7 +171,7 @@ public abstract class SampleAuto extends SampleAutoBase {
                                     )
                             ),
                             new SeriesTask(
-                                    new SleepTask(500),
+                                    new SleepTask(DELIVER_DELAY),
                                     new RuntimeDrivingTask(
                                             robot,
                                             builder -> {
@@ -178,7 +181,7 @@ public abstract class SampleAuto extends SampleAutoBase {
                                                         .splineToSplineHeading(pos, Math.toRadians(BUCKET_TO_SUB_END_TANGENT_DEG), new TranslationalVelConstraint(60))
                                                         .build();
                                             },
-                                            5.0
+                                            TO_SUB_BEGIN_END_VELO
                                     )
                             ),
                             new HorizontalSlidesTask(robot, 0.0,1.0,750),
@@ -189,6 +192,7 @@ public abstract class SampleAuto extends SampleAutoBase {
                             new IntakeClawTask(robot, IntakeClawTask.Position.OPEN)
                     )
             );
+            task.add(new SleepTask(WAIT_AT_SUB_TIME));
         }
 
 
@@ -258,7 +262,7 @@ public abstract class SampleAuto extends SampleAutoBase {
         task.add(
                 new ParallelTask(
                         new SeriesTask(
-                                new SleepTask(500),
+                                new SleepTask(CYCLE_DRIVE_TO_DELIVER_DELAY),
                                 new RuntimeDrivingTask(
                                         robot,
                                         builder -> {
@@ -268,7 +272,7 @@ public abstract class SampleAuto extends SampleAutoBase {
                                                     .splineToSplineHeading(pos, Math.toRadians(BUCKET_TO_SUB_START_TANGENT_DEG+180), new TranslationalVelConstraint(80))
                                                     .build();
                                         },
-                                        10.0
+                                        20.0
                                 )
                         ),
                         createTransferTask()
@@ -292,7 +296,7 @@ public abstract class SampleAuto extends SampleAutoBase {
                                 )
                         ),
                         new SeriesTask(
-                                new SleepTask(500),
+                                new SleepTask(DELIVER_DELAY),
                                 new RuntimeDrivingTask(
                                         robot,
                                         builder -> {
@@ -302,7 +306,7 @@ public abstract class SampleAuto extends SampleAutoBase {
                                                     .splineToSplineHeading(pos, Math.toRadians(BUCKET_TO_SUB_END_TANGENT_DEG), new TranslationalVelConstraint(80))
                                                     .build();
                                         },
-                                        5.0
+                                        TO_SUB_BEGIN_END_VELO
                                 )
                         ),
                         new HorizontalSlidesTask(robot, 0.0,1.0,750),
@@ -313,6 +317,7 @@ public abstract class SampleAuto extends SampleAutoBase {
                         new IntakeClawTask(robot, IntakeClawTask.Position.OPEN)
                 )
         );
+        task.add(new SleepTask(WAIT_AT_SUB_TIME));
 
         return task;
     }

@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.auto;
+package org.firstinspires.ftc.teamcode.auto.specimenauto.specimenauto1;
 
 import android.util.Log;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -13,18 +13,18 @@ import org.firstinspires.ftc.teamcode.drive.IntakeSampleState;
 import org.firstinspires.ftc.teamcode.drive.RobotBase;
 import org.firstinspires.ftc.teamcode.drive.SensorUpdateThread;
 import org.firstinspires.ftc.teamcode.task.Task;
-import org.firstinspires.ftc.teamcode.util.limelight.Coordinates;
-import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 
 @Config
-public abstract class AutoBase extends LinearOpMode {
+public abstract class SpecimenAutoBase extends LinearOpMode {
 
     public static int AA_TOTAL_TIME_MILLIS = 30000;
 
-    public static int AA_NUM_OF_SPIKE_MARKS = 3, AA_NUM_OF_CYCLES = 4;
+    public static int AA_NUM_OF_SPIKE_MARKS = 3,
+            AA_NUM_OF_CYCLES = 6,
+            AA_NUM_TO_INTAKE = 1;
 
     public static int INIT_DELAY_TIME = 0;
-    public static int AA_TIME_FOR_A_CYCLE = 2000;
+    public static int AA_TIME_FOR_A_CYCLE = 0000;
     public static int AA_TIME_FOR_PARK = 0000; //0 for now because prioritize delivering a sample over 3 point hang
 
     // Moving velocity constraints
@@ -42,7 +42,10 @@ public abstract class AutoBase extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot = createRobot(hardwareMap);
         resetRobot();
-        robot.setLimelightPipeline(IntakeSampleState.SampleColor.COLOR_YELLOW);
+        robot.setLimelightPipeline(isRed()? IntakeSampleState.SampleColor.COLOR_RED : IntakeSampleState.SampleColor.COLOR_BLUE);
+
+        sensorUpdateThread = new SensorUpdateThread(robot);
+
         while (opModeInInit()) {
             telemetry.addData("initializing", 1);
             telemetry.update();
@@ -50,12 +53,8 @@ public abstract class AutoBase extends LinearOpMode {
 
         state = AutoState.START;
         Task task = createStartTask();
-//        robot.setLightColor(RevBlinkinLedDriver.BlinkinPattern.BLACK);
         timer.reset();
-
-        sensorUpdateThread = new SensorUpdateThread(robot);
         sensorUpdateThread.start();
-
         robot.startLimelight();
 
         ElapsedTime cycleTimer = new ElapsedTime();
@@ -64,20 +63,18 @@ public abstract class AutoBase extends LinearOpMode {
         while (opModeIsActive() && !done && task != null) {
             robot.updateEverything();
             robot.updateLimelight();
-            Log.i("edbug sample cycles", robot.getLimelightObjectPosition().toString());
+            Log.i("edbug specimen cycles", robot.getLimelightObjectPosition().toString());
             if(timeToFinish() && state != AutoState.FINISH) {
                 task.cancel();
                 task = createFinishTask();
             } else if(task.perform()) {
-                if(state == AutoState.TURN_TO_SAMPLE){
-                    task = createCycleTask();
-                } else if(hasSpikeMarksLeft()) {
+                if(hasSpikeMarksLeft()) {
                     autoStates.setSpikeMarkNumber(autoStates.getSpikeMarkNumber() + 1);
                     Log.i("spike mark number", ""+autoStates.getSpikeMarkNumber());
                     task = createSpikeMarkTask();
                 } else if(hasTimeForOneMoreCycle()) {
                     autoStates.setCycleNumber(autoStates.getCycleNumber() + 1);
-                    task = createTurnToSampleTask();
+                    task = createCycleTask();
                 } else if(state != AutoState.FINISH) {
                     task = createFinishTask();
                 } else {
@@ -88,6 +85,9 @@ public abstract class AutoBase extends LinearOpMode {
             telemetry.addData("angle", robot.pose.heading.toDouble());
             telemetry.addData("x", robot.pose.position.x);
             telemetry.addData("y", robot.pose.position.y);
+            LLStatus status = robot.limelight.getStatus();
+            telemetry.addData("Pipeline", "Index: %d, Type: %s",
+                    status.getPipelineIndex(), status.getPipelineType());
             telemetry.update();
 
             Log.i("edbug loop times", cycleTimer.milliseconds()+"");
@@ -114,7 +114,6 @@ public abstract class AutoBase extends LinearOpMode {
 
     private void resetRobot() {
         robot.autoInit();
-//        robot.setLightColor(RevBlinkinLedDriver.BlinkinPattern.GREEN);
     }
 
     protected abstract RobotBase createRobot(HardwareMap hardwareMap);
@@ -123,7 +122,7 @@ public abstract class AutoBase extends LinearOpMode {
     protected abstract Task createSpikeMarkTask();
     protected abstract Task createCycleTask();
     protected abstract Task createFinishTask();
-    protected abstract Task createTurnToSampleTask();
+    protected abstract boolean isRed();
     protected double toR(double degree) {
         return Math.toRadians(degree);
     }
@@ -137,7 +136,6 @@ public abstract class AutoBase extends LinearOpMode {
         START,
         SPIKE_MARKS,
         CYCLE,
-        FINISH,
-        TURN_TO_SAMPLE
+        FINISH
     }
 }

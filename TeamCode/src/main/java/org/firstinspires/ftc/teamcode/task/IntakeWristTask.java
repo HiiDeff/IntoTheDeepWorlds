@@ -42,6 +42,7 @@ public class IntakeWristTask extends TimedTask {
         HOVER,
         BACK,
         DOWN,
-        SLIGHTLY_UP
+        SLIGHTLY_UP,
+        OBS_ZONE
     }
 }

@@ -61,7 +61,7 @@ public class IntakeTurretTask extends TimedTask {
 
     public enum Position {
         STRAIGHT,
-        DROP_OFF,
+        OBS_ZONE,
         LEFT_45_DEG,
         RIGHT_45_DEG
     }

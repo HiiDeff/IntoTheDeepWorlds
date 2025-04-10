@@ -1,13 +1,11 @@
-package org.firstinspires.ftc.teamcode.auto.defaultauto;
+package org.firstinspires.ftc.teamcode.auto.sampleauto;
 
 import android.util.Log;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
-import com.acmerobotics.roadrunner.Vector2d;
 
-import org.firstinspires.ftc.teamcode.auto.AutoBase;
 import org.firstinspires.ftc.teamcode.auto.conditions.SampleStateCondition;
 import org.firstinspires.ftc.teamcode.task.DecisionTask;
 import org.firstinspires.ftc.teamcode.task.DeliveryClawTask;
@@ -25,7 +23,6 @@ import org.firstinspires.ftc.teamcode.task.RuntimeDrivingTask;
 import org.firstinspires.ftc.teamcode.task.SeriesTask;
 import org.firstinspires.ftc.teamcode.task.SleepTask;
 import org.firstinspires.ftc.teamcode.task.Task;
-import org.firstinspires.ftc.teamcode.task.UnboundedHorizontalSlidesTask;
 import org.firstinspires.ftc.teamcode.task.VerticalSlidesTask;
 import org.firstinspires.ftc.teamcode.util.limelight.Coordinates;
 import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
@@ -33,7 +30,7 @@ import org.firstinspires.ftc.teamcode.common.InvKin;
 
 
 @Config
-public abstract class SampleAuto extends AutoBase {
+public abstract class SampleAuto extends SampleAutoBase {
 
     public static int verticalSlidesDelay = 500, DELIVER_EXTEND_MIN_TIME = 1500;
     public static int DELIVER_DRIVING_SPEED = 20, DELIVER_CLAW_DELAY = 100, INTAKE_DELAY = 100;
@@ -105,15 +102,18 @@ public abstract class SampleAuto extends AutoBase {
         //transfer
         task.add(
                 new ParallelTask(
-                        new RuntimeDrivingTask(
-                                robot,
-                                builder -> {
-                                    Pose2d pos;
-                                    if(spikeMarkNumber==1) pos = getSample1DeliverPos();
-                                    else if(spikeMarkNumber==2) pos = getSample2DeliverPos();
-                                    else pos = getSample3DeliverPos();
-                                    return builder.strafeToLinearHeading(pos.position, pos.heading, new TranslationalVelConstraint(60)).build();
-                                }
+                        new SeriesTask(
+                                new SleepTask(1000),
+                                new RuntimeDrivingTask(
+                                        robot,
+                                        builder -> {
+                                            Pose2d pos;
+                                            if(spikeMarkNumber==1) pos = getSample1DeliverPos();
+                                            else if(spikeMarkNumber==2) pos = getSample2DeliverPos();
+                                            else pos = getSample3DeliverPos();
+                                            return builder.strafeToLinearHeading(pos.position, pos.heading, new TranslationalVelConstraint(60)).build();
+                                        }
+                                )
                         ),
                         createTransferTask()
                 )
@@ -177,7 +177,8 @@ public abstract class SampleAuto extends AutoBase {
                                                         .setTangent(Math.toRadians(BUCKET_TO_SUB_START_TANGENT_DEG))
                                                         .splineToSplineHeading(pos, Math.toRadians(BUCKET_TO_SUB_END_TANGENT_DEG), new TranslationalVelConstraint(60))
                                                         .build();
-                                            }
+                                            },
+                                            5.0
                                     )
                             ),
                             new HorizontalSlidesTask(robot, 0.0,1.0,750),
@@ -197,21 +198,25 @@ public abstract class SampleAuto extends AutoBase {
     protected Task createTurnToSampleTask() {
         state = AutoState.TURN_TO_SAMPLE;
         Coordinates samplePos = robot.getLimelightObjectPosition();
+        Coordinates invKin = InvKin.inverseKinematics(samplePos);
         double angleToSample = robot.getAngleToSample(samplePos);
         Log.i("edbug angle to sample", angleToSample+"");
         SeriesTask task = new SeriesTask();
-        task.add(
-                new RuntimeDrivingTask(
-                    robot,
-                    builder -> {
-                        double currHeading = robot.getPositionRR().heading.toDouble();
-                        return builder
-                                .turnTo(currHeading-angleToSample)
-                                .build();
-                    }
-            )
-        );
-        task.add(new SleepTask(500));
+
+        if(invKin.getY()==-1) {
+            task.add(
+                    new RuntimeDrivingTask(
+                            robot,
+                            builder -> {
+                                double currHeading = robot.getPositionRR().heading.toDouble();
+                                return builder
+                                        .turnTo(currHeading-angleToSample)
+                                        .build();
+                            }
+                    )
+            );
+            task.add(new SleepTask(100));
+        }
         return task;
     }
     @Override
@@ -219,7 +224,7 @@ public abstract class SampleAuto extends AutoBase {
         state = AutoState.CYCLE;
         Coordinates samplePos = robot.getLimelightObjectPosition();
         SampleOrientation sampleOrientation = robot.getLimelightObjectOrientation();
-        Coordinates invKin = InvKin.inverseKinematics(new Coordinates(samplePos.getX(), samplePos.getY(), samplePos.getAngle()));
+        Coordinates invKin = InvKin.inverseKinematics(samplePos);
 
         Log.e("edbug sample cycles", samplePos.getX()+" "+samplePos.getY()+" "+samplePos.getAngle());
         Log.e("edbug sample cycles", sampleOrientation.toString());
@@ -250,44 +255,6 @@ public abstract class SampleAuto extends AutoBase {
                 )
         );
 
-//        task.add(
-//                new ParallelTask(
-//                        new RuntimeDrivingTask(
-//                                robot,
-//                                builder -> {
-//                                    Pose2d currPos = robot.getPositionRR();
-////                                    double theta = currPos.heading.toDouble() - (-Math.PI/2);
-////                                    double yComponent = -Math.sin(theta)*samplePos.getX();
-////                                    double xComponent = currPos.position.x - Math.cos(theta)*samplePos.getX();
-//                                    Pose2d newPos = new Pose2d(currPos.position.x-samplePos.getX(), currPos.position.y, currPos.heading.toDouble());
-//                                    return builder
-//                                            .strafeToLinearHeading(newPos.position, newPos.heading, new TranslationalVelConstraint(70))
-//                                            .build();
-//                                }
-//                        ),
-//                        new IntakePivotTask(robot, sampleOrientation),
-//                        new HorizontalSlidesTask(robot, slideExtendLengthInch,1.0,750),
-//                        new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
-//                        new IntakeWristTask(robot, IntakeWristTask.Position.HOVER),
-//                        new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
-//                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
-//                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.TRANSFER),
-//                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.TRANSFER)
-//
-//                )
-//        );
-//        task.add(
-//                new SeriesTask(
-//                        new ParallelTask(
-//                                new IntakeArmTask(robot, IntakeArmTask.Position.DOWN),
-//                                new IntakeWristTask(robot, IntakeWristTask.Position.DOWN)
-//                        ),
-//                        new IntakeClawTask(robot, IntakeClawTask.Position.CLOSE),
-//                        new SleepTask(INTAKE_DELAY)
-//                )
-//        );
-//
-
         task.add(
                 new ParallelTask(
                         new SeriesTask(
@@ -300,7 +267,8 @@ public abstract class SampleAuto extends AutoBase {
                                                     .setTangent(Math.toRadians(BUCKET_TO_SUB_END_TANGENT_DEG+180))
                                                     .splineToSplineHeading(pos, Math.toRadians(BUCKET_TO_SUB_START_TANGENT_DEG+180), new TranslationalVelConstraint(80))
                                                     .build();
-                                        }
+                                        },
+                                        10.0
                                 )
                         ),
                         createTransferTask()
@@ -333,7 +301,8 @@ public abstract class SampleAuto extends AutoBase {
                                                     .setTangent(Math.toRadians(BUCKET_TO_SUB_START_TANGENT_DEG))
                                                     .splineToSplineHeading(pos, Math.toRadians(BUCKET_TO_SUB_END_TANGENT_DEG), new TranslationalVelConstraint(80))
                                                     .build();
-                                        }
+                                        },
+                                        5.0
                                 )
                         ),
                         new HorizontalSlidesTask(robot, 0.0,1.0,750),

@@ -47,7 +47,7 @@ public class Robot1 extends RobotBase {
             INTAKE_WRIST_DOWN = 0.04,
             INTAKE_WRIST_BACK = 0.62,
             INTAKE_WRIST_SLIGHTLY_UP = 0.48;
-    public static double TURRET_DROP_OFF = 1.0,
+    public static double TURRET_OBS_ZONE = 0.98,
             TURRET_STRAIGHT = 0.83,
             TURRET_LEFT_45_DEG = 0.665,
             TURRET_RIGHT_45_DEG = 0.98;
@@ -162,8 +162,8 @@ public class Robot1 extends RobotBase {
     @Override
     public double getTurretPosition(IntakeTurretTask.Position position) {
         switch(position) {
-            case DROP_OFF:
-                return TURRET_DROP_OFF;
+            case OBS_ZONE:
+                return TURRET_OBS_ZONE;
             case LEFT_45_DEG:
                 return TURRET_LEFT_45_DEG;
             case RIGHT_45_DEG:

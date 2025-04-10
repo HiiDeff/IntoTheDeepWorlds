@@ -548,7 +548,7 @@ public class MecanumDrive {
         c.strokePolyline(xPoints, yPoints);
     }
 
-    public TrajectoryActionBuilder actionBuilder(Pose2d beginPose) {
+    public TrajectoryActionBuilder actionBuilder(Pose2d beginPose, double beginEndVel) {
         return new TrajectoryActionBuilder(
                 TurnAction::new,
                 FollowTrajectoryAction::new,
@@ -558,7 +558,7 @@ public class MecanumDrive {
                                 0.25, 0.25, 1e-2
                         )
                 ),
-                beginPose, 0.0, // TODO: cry changing this to decrease cycle times?
+                beginPose, beginEndVel, // TODO: cry changing this to decrease cycle times?
                 defaultTurnConstraints,
                 defaultVelConstraint, defaultAccelConstraint
         );

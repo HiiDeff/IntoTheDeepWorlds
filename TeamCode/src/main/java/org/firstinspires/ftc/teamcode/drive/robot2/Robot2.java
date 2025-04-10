@@ -30,28 +30,28 @@ public class Robot2 extends RobotBase {
     public static double VERTICAL_TICKS_PER_INCH  = 1127/34.5, VERTICAL_EXTEND_MAX_INCH = 34.5;
 
     // PID + Profile Constraints
-    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.015, 0.0, 0.0,0.24); //0.14 min ff, 0.4 = max ff, so do 0.27
+    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.012, 0.0, 0.0,0.24); //0.14 min ff, 0.4 = max ff, so do 0.27
     //min stand power = 0.1, max 0.33
 
     public static ProfileConstraints DELIVERY_ARM_CONSTRAINTS = new ProfileConstraints(10, 12, 16);
 
     // Intake Servo Positions
-    public static double INTAKE_ARM_DOWN = 0.56,
+    public static double INTAKE_ARM_DOWN = 0.58,
             INTAKE_ARM_TRANSFER = 0.66,
             INTAKE_ARM_HOVER = 0.50,
             INTAKE_ARM_BACK = 0.30,
             INTAKE_ARM_SLIGHTLY_UP = 0.34,
-            INTAKE_ARM_DROP_OFF = 0.48;
+            INTAKE_ARM_OBS_ZONE = 0.54;
 
     public static double INTAKE_WRIST_TRANSFER = 0.43,
-            INTAKE_WRIST_HOVER = 0.97,
-            INTAKE_WRIST_DOWN = 0.99,
+            INTAKE_WRIST_HOVER = 0.96,
+            INTAKE_WRIST_DOWN = 0.96,
             INTAKE_WRIST_BACK = 0.45,
             INTAKE_WRIST_SLIGHTLY_UP = 0.75,
-            INTAKE_WRIST_DROP_OFF = 0.6;
-    public static double TURRET_DROP_OFF = 1.0,
+            INTAKE_WRIST_OBS_ZONE = 0.75;
+    public static double TURRET_OBS_ZONE = 0.99,
             TURRET_STRAIGHT = 0.36,
-            TURRET_LEFT_45_DEG = 0.10,
+            TURRET_LEFT_45_DEG = 0.15, //0.10 but then the servos get weird
             TURRET_RIGHT_45_DEG = 0.6;
     public static double INTAKE_CLAW_CLOSE = 0.62,
             INTAKE_CLAW_OPEN = 0.92;
@@ -110,7 +110,7 @@ public class Robot2 extends RobotBase {
         // path controller gains
         p.axialGain = 5.0;
         p.lateralGain = 5.0;
-        p.headingGain = 3.0; // shared with turn
+        p.headingGain = 8.0; // shared with turn
 
         p.axialVelGain = 0.0;
         p.lateralVelGain = 0.0;
@@ -138,6 +138,8 @@ public class Robot2 extends RobotBase {
                 return INTAKE_ARM_BACK;
             case SLIGHTLY_UP:
                 return INTAKE_ARM_SLIGHTLY_UP;
+            case OBS_ZONE:
+                return INTAKE_ARM_OBS_ZONE;
             case DOWN:
             default:
                 return INTAKE_ARM_DOWN;
@@ -164,8 +166,8 @@ public class Robot2 extends RobotBase {
     @Override
     public double getTurretPosition(IntakeTurretTask.Position position) {
         switch(position) {
-            case DROP_OFF:
-                return TURRET_DROP_OFF;
+            case OBS_ZONE:
+                return TURRET_OBS_ZONE;
             case LEFT_45_DEG:
                 return TURRET_LEFT_45_DEG;
             case RIGHT_45_DEG:
@@ -209,6 +211,8 @@ public class Robot2 extends RobotBase {
                 return INTAKE_WRIST_DOWN;
             case SLIGHTLY_UP:
                 return INTAKE_WRIST_SLIGHTLY_UP;
+            case OBS_ZONE:
+                return INTAKE_WRIST_OBS_ZONE;
             case BACK:
             default:
                 return INTAKE_WRIST_BACK;

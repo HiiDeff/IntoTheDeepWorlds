@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive;
 
+import android.util.Log;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -143,7 +145,6 @@ public abstract class RobotBase extends PinpointDrive {
         // Limelight:
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelightSampleDetector = new LimelightSampleDetector(limelight, LLConfig);
-        limelight.pipelineSwitch(LIMELIGHT_YELLOW_PIPELINE_IDX);
 
         // Color Sensors:
         intakeColorSensor = hardwareMap.get(RevColorSensorV3.class, "iColor");
@@ -367,11 +368,14 @@ public abstract class RobotBase extends PinpointDrive {
         switch(sampleColor) {
             case COLOR_RED:
                 limelight.pipelineSwitch(LIMELIGHT_RED_PIPELINE_IDX);
+                break;
             case COLOR_BLUE:
                 limelight.pipelineSwitch(LIMELIGHT_BLUE_PIPELINE_IDX);
+                break;
             case COLOR_YELLOW:
             default:
                 limelight.pipelineSwitch(LIMELIGHT_YELLOW_PIPELINE_IDX);
+                break;
         }
     }
     public void startLimelight() {

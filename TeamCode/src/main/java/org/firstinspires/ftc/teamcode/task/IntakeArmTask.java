@@ -45,7 +45,8 @@ public class IntakeArmTask extends TimedTask {
         HOVER,
         BACK,
         DOWN,
-        SLIGHTLY_UP
+        SLIGHTLY_UP,
+        OBS_ZONE
     }
 }
 

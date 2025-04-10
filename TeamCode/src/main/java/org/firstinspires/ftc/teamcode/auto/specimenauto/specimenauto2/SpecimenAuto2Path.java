@@ -21,51 +21,51 @@ public abstract class SpecimenAuto2Path extends SpecimenAuto2 {
 
     @Override
     protected Pose2d getPreloadDeliverPos() {
-        return null;
+        return new Pose2d(29.466,10.593,0.0);
     }
 
     @Override
     protected Pose2d getCycleIntakePos() {
-        return null;
+        return new Pose2d(0.5,-29.582,0.0);
     }
 
     @Override
     protected Pose2d getCycleDeliverPos() {
-        return null;
+        return new Pose2d(26.529,CYCLE_INITIAL_Y+autoStates.getCycleNumber()*CYCLE_DELIVER_Y_OFFSET,0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark1ReadyPos() {
-        return null;
+        return new Pose2d(20.788,-25.410,0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark1IntakePos() {
-        return null;
+        return new Pose2d(50.12,-30.46, 0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark1DeliverPos() {
-        return null;
+        return new Pose2d(5.83,-30.46, 0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark2IntakePos() {
-        return null;
+        return new Pose2d(58.22,-46.235,0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark2DeliverPos() {
-        return null;
+        return new Pose2d(3.698,-40.235,0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark3IntakePos() {
-        return null;
+        return new Pose2d(55.76,-56.89,0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark3DeliverPos() {
-        return null;
+        return new Pose2d(3.556,-56.31,0.0);
     }
 }

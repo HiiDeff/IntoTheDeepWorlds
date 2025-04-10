@@ -67,7 +67,9 @@ public abstract class SpecimenAuto2Base extends LinearOpMode {
                 task.cancel();
                 task = createFinishTask();
             } else if(task.perform()) {
-                if(hasSpikeMarksLeft()) {
+                if(state == AutoState.START) {
+                    task = createCycleWithIntakeTask();
+                }else if(hasSpikeMarksLeft()) {
                     autoStates.setSpikeMarkNumber(autoStates.getSpikeMarkNumber() + 1);
                     Log.i("spike mark number", ""+autoStates.getSpikeMarkNumber());
                     task = createSpikeMarkTask();

@@ -30,7 +30,7 @@ public class Robot2 extends RobotBase {
     public static double VERTICAL_TICKS_PER_INCH  = 1127/34.5, VERTICAL_EXTEND_MAX_INCH = 34.5;
 
     // PID + Profile Constraints
-    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.012, 0.0, 0.0,0.24); //0.14 min ff, 0.4 = max ff, so do 0.27
+    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.008, 0.0, 0.0,0.24); //0.14 min ff, 0.4 = max ff, so do 0.27
     //min stand power = 0.1, max 0.33
 
     public static ProfileConstraints DELIVERY_ARM_CONSTRAINTS = new ProfileConstraints(10, 12, 16);

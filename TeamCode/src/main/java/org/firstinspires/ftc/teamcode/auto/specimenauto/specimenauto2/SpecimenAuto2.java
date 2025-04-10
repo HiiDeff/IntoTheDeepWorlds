@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto.specimenauto.specimenauto2;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -24,13 +25,14 @@ import org.firstinspires.ftc.teamcode.task.VerticalSlidesTask;
 import org.firstinspires.ftc.teamcode.util.limelight.Coordinates;
 import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 
+@Config
 public abstract class SpecimenAuto2 extends SpecimenAuto2Base {
 
     public static double PRELOAD_BEGIN_END_VELO = 0.0;
-    public static double CHAMBER_DELIVER_HEIGHT = 19.4, CHAMBER_DELIVER_DIST_DOWN = 7.5, BEG_END_VEL_FOR_FAST_PATHS = 5.0;
+    public static double CHAMBER_DELIVER_HEIGHT = 19.4, CHAMBER_DELIVER_DIST_DOWN = 7.5, BEG_END_VEL_FOR_FAST_PATHS = 10.0;
     public static int DELIVER_DELAY = 0, DELIVERY_CLAW_OPEN_DELAY = 200, DELIVERY_CLAW_CLOSE_DELAY = 100,
             FIRST_SAMPLE_EXTEND_DELAY = 500, INTAKE_DELAY_SPIKE_MARKS = 000, INTAKE_DELAY = 200, SAMPLE_INTAKE_TO_OBS_POS_DELAY = 500,
-            SPIKE_MARK_INTAKE_TANGENT_DEG = -100;
+            SPIKE_MARK_INTAKE_TANGENT_DEG = -60;
 
     @Override
     protected Task createStartTask() {
@@ -49,10 +51,10 @@ public abstract class SpecimenAuto2 extends SpecimenAuto2Base {
                                             .build();
                                 },
                                 PRELOAD_BEGIN_END_VELO
-                        )
-//                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT, 1.0, 1000),
-//                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
-//                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP)
+                        ),
+                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT, 1.0, 1000),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP)
                 )
         );
         task.add(
@@ -96,13 +98,13 @@ public abstract class SpecimenAuto2 extends SpecimenAuto2Base {
         );
         task.add(
                 new ParallelTask(
-//                        new SeriesTask(
-//                                new ParallelTask(
-//                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.FLAT),
-//                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.FLAT)
-//                                ),
-//                                new VerticalSlidesTask(robot, 0.0,1.0,500)
-//                        ),
+                        new SeriesTask(
+                                new ParallelTask(
+                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.FLAT),
+                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.FLAT)
+                                ),
+                                new VerticalSlidesTask(robot, 0.0,1.0,500)
+                        ),
                         new SeriesTask(
                                 new ParallelTask(
                                         new IntakeArmTask(robot, IntakeArmTask.Position.OBS_ZONE),
@@ -141,9 +143,9 @@ public abstract class SpecimenAuto2 extends SpecimenAuto2Base {
                         new SeriesTask(
                                 new SleepTask(DELIVERY_CLAW_CLOSE_DELAY),
                                 new ParallelTask(
-//                                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT,1.0, 1000),
-//                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
-//                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP)
+                                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT,1.0, 1000),
+                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
+                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP),
                                         new RuntimeDrivingTask(
                                                 robot,
                                                 builder -> {
@@ -193,27 +195,38 @@ public abstract class SpecimenAuto2 extends SpecimenAuto2Base {
         task.add(
                 new ParallelTask(
                         new HorizontalSlidesTask(robot, 0.0, 1.0, 750),
-//                        new VerticalSlidesTask(robot, 0.0, 1.0, 250),
-//                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.FLAT),
-//                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.FLAT),
+                        new VerticalSlidesTask(robot, 0.0, 1.0, 750),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.FLAT),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.FLAT),
                         new RuntimeDrivingTask(
                                 robot,
                                 builder -> {
                                     Pose2d intakePos = getSpikeMark1IntakePos();
                                     if(autoStates.getSpikeMarkNumber()==2) intakePos = getSpikeMark2IntakePos();
-                                    else if(autoStates.getSpikeMarkNumber()==3) intakePos = getSpikeMark2IntakePos();
-                                    Pose2d deliverPos = getSpikeMark1DeliverPos();
-                                    if(autoStates.getSpikeMarkNumber()==2) intakePos = getSpikeMark1DeliverPos();
-                                    else if(autoStates.getSpikeMarkNumber()==3) intakePos = getSpikeMark1DeliverPos();
+                                    else if(autoStates.getSpikeMarkNumber()==3) intakePos = getSpikeMark3IntakePos();
 
                                     return builder
                                             .setTangent(0.0)
                                             .splineToLinearHeading(intakePos, Math.toRadians(SPIKE_MARK_INTAKE_TANGENT_DEG), new TranslationalVelConstraint(90))
-                                            .splineToLinearHeading(deliverPos, -Math.PI, new TranslationalVelConstraint(90))
                                             .build();
                                 },
-                                5.0
+                                30.0
                         )
+                )
+        );
+        task.add(
+                new RuntimeDrivingTask(
+                        robot,
+                        builder -> {
+                            Pose2d deliverPos = getSpikeMark1DeliverPos();
+                            if(autoStates.getSpikeMarkNumber()==2) deliverPos = getSpikeMark2DeliverPos();
+                            else if(autoStates.getSpikeMarkNumber()==3) deliverPos = getSpikeMark3DeliverPos();
+
+                            return builder
+                                    .strafeToLinearHeading(deliverPos.position, deliverPos.heading, new TranslationalVelConstraint(90))
+                                    .build();
+                        },
+                        30.0
                 )
         );
         if(autoStates.getSpikeMarkNumber()==AA_NUM_OF_SPIKE_MARKS) {
@@ -244,9 +257,9 @@ public abstract class SpecimenAuto2 extends SpecimenAuto2Base {
                         new SeriesTask(
                                 new SleepTask(DELIVERY_CLAW_CLOSE_DELAY),
                                 new ParallelTask(
-//                                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT,1.0, 1000),
-//                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
-//                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP)
+                                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT,1.0, 1000),
+                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
+                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP),
                                         new RuntimeDrivingTask(
                                                 robot,
                                                 builder -> {

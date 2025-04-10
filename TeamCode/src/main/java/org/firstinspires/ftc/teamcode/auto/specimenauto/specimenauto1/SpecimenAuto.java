@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.TurnConstraints;
 
 import org.firstinspires.ftc.teamcode.common.InvKin;
 import org.firstinspires.ftc.teamcode.task.DeliveryClawTask;
+import org.firstinspires.ftc.teamcode.task.DeliveryTask;
 import org.firstinspires.ftc.teamcode.task.HorizontalSlidesTask;
 import org.firstinspires.ftc.teamcode.task.IntakeArmTask;
 import org.firstinspires.ftc.teamcode.task.IntakeClawTask;
@@ -18,13 +19,14 @@ import org.firstinspires.ftc.teamcode.task.RuntimeDrivingTask;
 import org.firstinspires.ftc.teamcode.task.SeriesTask;
 import org.firstinspires.ftc.teamcode.task.SleepTask;
 import org.firstinspires.ftc.teamcode.task.Task;
+import org.firstinspires.ftc.teamcode.task.VerticalSlidesTask;
 import org.firstinspires.ftc.teamcode.util.limelight.Coordinates;
 import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 
 @Config
 public abstract class SpecimenAuto extends SpecimenAutoBase {
 
-    public static double CHAMBER_DELIVER_HEIGHT = 19.4, CHAMBER_DELIVER_DIST_DOWN = 7.5, BEG_END_VEL_FOR_FAST_PATHS = 5.0;
+    public static double CHAMBER_DELIVER_HEIGHT = 19.4, CHAMBER_DELIVER_DIST_DOWN = 7.5, BEG_END_VEL_FOR_FAST_PATHS = 10.0;
     public static int DELIVER_DELAY = 0, DELIVERY_CLAW_OPEN_DELAY = 200, DELIVERY_CLAW_CLOSE_DELAY = 100,
             FIRST_SAMPLE_EXTEND_DELAY = 500, INTAKE_DELAY_SPIKE_MARKS = 000, INTAKE_DELAY = 200;
 
@@ -49,10 +51,10 @@ public abstract class SpecimenAuto extends SpecimenAutoBase {
                                             .build();
                                 },
                                 BEG_END_VEL_FOR_FAST_PATHS
-                        )
-//                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT, 1.0, 1000),
-//                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
-//                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP)
+                        ),
+                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT, 1.0, 1000),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
+                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP)
                 )
         );
         task.add(
@@ -78,17 +80,17 @@ public abstract class SpecimenAuto extends SpecimenAutoBase {
                         new SeriesTask(
                                 new SleepTask(DELIVER_DELAY),
                                 new ParallelTask(
-//                                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT-CHAMBER_DELIVER_DIST_DOWN, 1.0, 500),
+                                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT-CHAMBER_DELIVER_DIST_DOWN, 1.0, 500),
                                         new SeriesTask(
                                                 new SleepTask(DELIVERY_CLAW_OPEN_DELAY),
                                                 new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
                                         )
-                                )
-//                                new ParallelTask(
-//                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.FLAT),
-//                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.FLAT)
-//                                )
-//                                new VerticalSlidesTask(robot, 0.0, 1.0, 500)
+                                ),
+                                new ParallelTask(
+                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.FLAT),
+                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.FLAT)
+                                ),
+                                new VerticalSlidesTask(robot, 0.0, 1.0, 500)
                         )
                 )
         );
@@ -152,7 +154,7 @@ public abstract class SpecimenAuto extends SpecimenAutoBase {
                             new IntakeArmTask(robot, IntakeArmTask.Position.SLIGHTLY_UP),
                             new IntakeWristTask(robot, IntakeWristTask.Position.SLIGHTLY_UP),
                             new HorizontalSlidesTask(robot, 0.0,1.0,1200),
-//                            new VerticalSlidesTask(robot, 0.0, 1.0,500),
+                            new VerticalSlidesTask(robot, 0.0, 1.0,500),
                             new RuntimeDrivingTask(
                                     robot,
                                     builder -> {
@@ -171,7 +173,7 @@ public abstract class SpecimenAuto extends SpecimenAutoBase {
                             new SeriesTask(
                                     new SleepTask(DELIVERY_CLAW_CLOSE_DELAY),
                                     new ParallelTask(
-//                                            new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT,1.0, 1000),
+                                            new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT,1.0, 1000),
                                             new RuntimeDrivingTask(
                                                     robot,
                                                     builder -> {
@@ -181,9 +183,9 @@ public abstract class SpecimenAuto extends SpecimenAutoBase {
                                                                 .build();
                                                     },
                                                     0.0
-                                            )
-//                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
-//                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP)
+                                            ),
+                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
+                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP)
                                     )
                             )
 
@@ -225,7 +227,7 @@ public abstract class SpecimenAuto extends SpecimenAutoBase {
             );
             task.add(
                     new ParallelTask(
-//                            new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT-CHAMBER_DELIVER_DIST_DOWN, 1.0, 500),
+                            new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT-CHAMBER_DELIVER_DIST_DOWN, 1.0, 500),
                             new SeriesTask(
                                     new SleepTask(DELIVERY_CLAW_OPEN_DELAY),
                                     new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
@@ -241,15 +243,15 @@ public abstract class SpecimenAuto extends SpecimenAutoBase {
                     )
             );
         } else {
-//            task.add(
-//                    new ParallelTask(
-//                            new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT-CHAMBER_DELIVER_DIST_DOWN, 1.0, 500),
-//                            new SeriesTask(
-//                                    new SleepTask(DELIVERY_CLAW_OPEN_DELAY),
-//                                    new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
-//                            )
-//                    )
-//            );
+            task.add(
+                    new ParallelTask(
+                            new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT-CHAMBER_DELIVER_DIST_DOWN, 1.0, 500),
+                            new SeriesTask(
+                                    new SleepTask(DELIVERY_CLAW_OPEN_DELAY),
+                                    new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
+                            )
+                    )
+            );
         }
 
         task.add(
@@ -257,17 +259,17 @@ public abstract class SpecimenAuto extends SpecimenAutoBase {
                         new HorizontalSlidesTask(robot, 0.0, 1.0, 1500),
                         new SeriesTask(
                                 new ParallelTask(
-//                                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT-CHAMBER_DELIVER_DIST_DOWN, 1.0, 500),
+                                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT-CHAMBER_DELIVER_DIST_DOWN, 1.0, 500),
                                         new SeriesTask(
                                                 new SleepTask(DELIVERY_CLAW_OPEN_DELAY),
                                                 new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN)
                                         )
+                                ),
+                                new ParallelTask(
+                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.FLAT),
+                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.FLAT),
+                                        new VerticalSlidesTask(robot, 0.0, 1.0, 500)
                                 )
-//                                new ParallelTask(
-//                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.FLAT),
-//                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.FLAT),
-//                                        new VerticalSlidesTask(robot, 0.0, 1.0, 500)
-//                                )
                         ),
                         new RuntimeDrivingTask(
                                 robot,
@@ -288,7 +290,7 @@ public abstract class SpecimenAuto extends SpecimenAutoBase {
                         new SeriesTask(
                                 new SleepTask(DELIVERY_CLAW_CLOSE_DELAY),
                                 new ParallelTask(
-//                                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT,1.0, 1000),
+                                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT,1.0, 1000),
                                         new RuntimeDrivingTask(
                                                 robot,
                                                 builder -> {
@@ -298,9 +300,9 @@ public abstract class SpecimenAuto extends SpecimenAutoBase {
                                                             .build();
                                                 },
                                                 BEG_END_VEL_FOR_FAST_PATHS
-                                        )
-//                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
-//                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP)
+                                        ),
+                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
+                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP)
                                 )
                         ),
                         new SeriesTask(

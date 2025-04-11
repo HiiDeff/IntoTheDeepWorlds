@@ -216,7 +216,6 @@ public class TeleOp1 extends LinearOpMode {
         }
     }
 
-    // todo: init hang servos in teleopinit?
     private void runHang() {
         double pow = Math.min(Math.abs(gp2.leftStickY()), Math.abs(gp2.rightStickY()));
         if (pow > 0.3) {

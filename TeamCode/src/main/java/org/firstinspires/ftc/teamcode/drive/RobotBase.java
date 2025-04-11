@@ -43,6 +43,8 @@ public abstract class RobotBase extends PinpointDrive {
     public static double HORIZONTAL_EXTEND_MIN_IN = -2.0, HORIZONTAL_EXTEND_MAX_IN = 21.5;
     public static double HORIZONTAL_TICKS_PER_INCH = 690/21.5;
 
+    public static double RELEASE_HANG_POS = 0, STOW_HANG_POS = 1;
+
     // Intake Constants
 
 
@@ -57,7 +59,7 @@ public abstract class RobotBase extends PinpointDrive {
     public final DcMotorEx verticalSlidesLeft, verticalSlidesRight;
     // Servos
     public final Servo deliveryLeft, deliveryRight, deliveryClaw, turret, intakeArm, intakePivot, intakeWrist, intakeClaw;
-    public final Servo leftHang, rightHang;
+    public final Servo leftHang, rightHang, hangHookRelease;
 
     // Motion PIDs + Profilers
 //    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.02, 0.0, 0.0,0.22); // new PIDCoefficients(0.3, 1.0, 0.006, 0.0, 0.0,0.16); //0.07 min ff, 0.37 = max ff, so do
@@ -94,7 +96,6 @@ public abstract class RobotBase extends PinpointDrive {
     private boolean verticalSlidesRunToPosition = false;
 
     public boolean hangEngaged = false;
-
 
     public RobotBase(HardwareMap hardwareMap) {
 
@@ -138,6 +139,7 @@ public abstract class RobotBase extends PinpointDrive {
         intakeClaw = hardwareMap.get(Servo.class, "iClaw");
         leftHang = hardwareMap.get(Servo.class, "hangL");
         rightHang = hardwareMap.get(Servo.class, "hangR");
+        hangHookRelease = hardwareMap.get(Servo.class, "hangHookRelease");
 
         // Lights:
 //        light = hardwareMap.get(RevBlinkinLedDriver.class, "light");
@@ -168,6 +170,8 @@ public abstract class RobotBase extends PinpointDrive {
         setDeliveryClawPos(DeliveryClawTask.Position.OPEN);
         setDeliveryPos(DeliveryTask.Position.FLAT);
         setTurretPos(IntakeTurretTask.Position.STRAIGHT);
+        initHang();
+        stowHang();
     }
     public void autoInit() {
         setIntakeArmPos(IntakeArmTask.Position.BACK);
@@ -177,6 +181,8 @@ public abstract class RobotBase extends PinpointDrive {
         setDeliveryClawPos(DeliveryClawTask.Position.CLOSE);
         setDeliveryPos(DeliveryTask.Position.INIT);
         setTurretPos(IntakeTurretTask.Position.STRAIGHT);
+        initHang();
+        stowHang();
     }
 
     ///////////////////* UPDATES *///////////////////
@@ -354,6 +360,21 @@ public abstract class RobotBase extends PinpointDrive {
     }
     public boolean isHangEngaged(){
         return hangEngaged;
+    }
+
+    public void setHangMotorPowers(double pow) {
+        // pow should be non-negative
+        rightFront.setPower(-pow);
+        leftFront.setPower(-pow);
+        setVerticalSlidePowerWithoutEncoder(-pow);
+    }
+
+    public void releaseHang() {
+        hangHookRelease.setPosition(RELEASE_HANG_POS);
+    }
+
+    public void stowHang() {
+        hangHookRelease.setPosition(STOW_HANG_POS);
     }
 
     ///////////////////* LIMELIGHT UTILS *///////////////////

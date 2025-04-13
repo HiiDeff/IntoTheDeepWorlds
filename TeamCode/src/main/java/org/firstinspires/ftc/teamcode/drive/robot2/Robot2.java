@@ -42,7 +42,6 @@ public class Robot2 extends RobotBase {
             INTAKE_ARM_BACK = 0.30,
             INTAKE_ARM_SLIGHTLY_UP = 0.34,
             INTAKE_ARM_OBS_ZONE = 0.54;
-
     public static double INTAKE_WRIST_TRANSFER = 0.19,
             INTAKE_WRIST_HOVER = 0.86,
             INTAKE_WRIST_DOWN = 0.86,
@@ -53,13 +52,19 @@ public class Robot2 extends RobotBase {
             TURRET_STRAIGHT = 0.36,
             TURRET_LEFT_45_DEG = 0.15, //0.10 but then the servos get weird
             TURRET_RIGHT_45_DEG = 0.6;
-    public static double INTAKE_CLAW_CLOSE = 0.62,
-            INTAKE_CLAW_OPEN = 0.92;
-    public static double INTAKE_PIVOT_TILTED_LEFT = 0.46,
-            INTAKE_PIVOT_TILTED_RIGHT = 0.16,
-            INTAKE_PIVOT_HORIZONTAL = 0.63,
-            INTAKE_PIVOT_VERTICAL = 0.3,
-            INTAKE_PIVOT_VERTICAL_INVERSE = 0.95;
+    public static double INTAKE_CLAW_CLOSE = 0.55,
+            INTAKE_CLAW_OPEN = 0.89;
+//    public static double INTAKE_PIVOT_TILTED_LEFT = 0.46,
+//            INTAKE_PIVOT_TILTED_RIGHT = 0.16,
+//            INTAKE_PIVOT_HORIZONTAL = 0.63,
+//            INTAKE_PIVOT_VERTICAL = 0.3,
+//            INTAKE_PIVOT_VERTICAL_INVERSE = 0.95;
+
+    public static double INTAKE_PIVOT_TILTED_LEFT = 0.35,
+            INTAKE_PIVOT_TILTED_RIGHT = 0.05,
+            INTAKE_PIVOT_HORIZONTAL = 0.52,
+            INTAKE_PIVOT_VERTICAL = 0.19,
+            INTAKE_PIVOT_VERTICAL_INVERSE = 0.84;
     public static double DELIVERY_LEFT_TRANSFER = 0.207, DELIVERY_RIGHT_TRANSFER = 0.91,
             DELIVERY_LEFT_FLAT = 0.76, DELIVERY_RIGHT_FLAT = 0.26,
             DELIVERY_LEFT_UP = 0.5, DELIVERY_RIGHT_UP = 0.91,

@@ -47,7 +47,7 @@ public class TeleOp1 extends LinearOpMode {
     private boolean clawOpen, intakeClawVertical = true, testToggle = false;
 
     public static double MAX_SLIDE_EXTENSION_INCH = 21.0, VERTICAL_STAND_POWER = 0.125;
-    public static double CHAMBER_DELIVER_HEIGHT = 19.4, CHAMBER_DELIVER_DIST_DOWN = 7.5;
+    public static double CHAMBER_DELIVER_HEIGHT = 21, CHAMBER_DELIVER_DIST_DOWN = 8.5;
     public static int DELIVERY_CLAW_OPEN_DELAY = 200;
 
     private SensorUpdateThread sensorUpdateThread;
@@ -132,6 +132,7 @@ public class TeleOp1 extends LinearOpMode {
             }
         }
         if(gp2.dpadUp()) {
+            robot.initHang();
             robot.setVerticalSlidePowerWithoutEncoder(1.0);
         }else if(gp2.dpadDown()) {
             robot.setVerticalSlidePowerWithoutEncoder(-0.5);
@@ -159,6 +160,11 @@ public class TeleOp1 extends LinearOpMode {
 //        }
 //        a = turnLim.calculate(a);
 //        telemetry.addData("driving", x + " " + y + " " + a);
+        if (robot.getHorizontalSlideDistInch() > 8.0) {
+            x *= 0.6;
+            y *= 0.6;
+            a *= 0.6;
+        }
 
         robot.setDrivePowers(new PoseVelocity2d(new Vector2d(x, y), a));
     }
@@ -173,10 +179,29 @@ public class TeleOp1 extends LinearOpMode {
     }
 
     private void runIntake(){
+        if (gp2.onceDpadRight()) {
+            if (task != null) task.cancel();
+            intakeState = IntakeState.OBS_ZONE;
+            task = new SeriesTask(
+                    new ParallelTask(
+                            new IntakeArmTask(robot, IntakeArmTask.Position.OBS_ZONE),
+                            new IntakeWristTask(robot, IntakeWristTask.Position.OBS_ZONE),
+                            new IntakePivotTask(robot, SampleOrientation.HORIZONTAL),
+                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.FLAT),
+                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.FLAT),
+                            new VerticalSlidesTask(robot, 0, 1.0),
+                            new HorizontalSlidesTask(robot, 0, 1.0, 1500)
+                    ),
+                    new IntakeTurretTask(robot, IntakeTurretTask.Position.OBS_ZONE)
+            );
+        }
+        if (gp2.onceDpadLeft()) {
+            robot.setIntakeClawPos(IntakeClawTask.Position.OPEN);
+        }
 
         if(gp1.onceRightTrigger() || gp2.onceRightTrigger()) {
             if(task != null) task.cancel();
-            if(intakeState == IntakeState.NEUTRAL) {
+            if(intakeState == IntakeState.NEUTRAL || intakeState == IntakeState.OBS_ZONE) {
                 //go to hover
                 task = createHoverTask();
                 intakeClawVertical = true;
@@ -221,8 +246,22 @@ public class TeleOp1 extends LinearOpMode {
         if (pow > 0.3) {
             if (!robot.isHangEngaged()) {
                 robot.engageHang();
+                if (task != null) task.cancel();
+                task = new SeriesTask(
+                        new ParallelTask(
+                                new IntakeArmTask(robot, IntakeArmTask.Position.OBS_ZONE),
+                                new IntakeWristTask(robot, IntakeWristTask.Position.OBS_ZONE),
+                                new IntakePivotTask(robot, SampleOrientation.HORIZONTAL),
+                                new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.UP),
+                                new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.UP),
+                                new VerticalSlidesTask(robot, 0, 1.0),
+                                new HorizontalSlidesTask(robot, 0, 1.0, 1500)
+                        ),
+                        new IntakeTurretTask(robot, IntakeTurretTask.Position.OBS_ZONE)
+                );
             }
             robot.setHangMotorPowers(pow);
+            robot.setHorizontalSlidesPowerWithoutEncoder(-VERTICAL_STAND_POWER);
             lastHang = true;
         } else if (lastHang) {
             robot.setHangMotorPowers(0);
@@ -265,21 +304,25 @@ public class TeleOp1 extends LinearOpMode {
     private enum IntakeState {
         NEUTRAL,
         TRANSFER,
-        HOVER
+        HOVER,
+        OBS_ZONE
     }
 
     private Task createHoverTask() {
         Task hoverTask = new SeriesTask(
-                new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN),
+//                new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN),
                 new ParallelTask(
                         new HorizontalSlidesTask(robot, 10.0,1.0,1500),
                         new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
                         new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
                         new IntakePivotTask(robot, SampleOrientation.VERTICAL),
-                        new IntakeWristTask(robot, IntakeWristTask.Position.HOVER),
                         new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
-                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.TRANSFER),
-                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.TRANSFER)
+                        new SeriesTask(
+                                new SleepTask(200),
+                                new IntakeWristTask(robot, IntakeWristTask.Position.HOVER)
+                        )
+//                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.TRANSFER),
+//                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.TRANSFER)
                 )
         );
         return hoverTask;

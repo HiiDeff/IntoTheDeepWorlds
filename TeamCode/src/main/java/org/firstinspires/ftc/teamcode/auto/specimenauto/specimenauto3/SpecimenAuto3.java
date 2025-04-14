@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 public abstract class SpecimenAuto3 extends SpecimenAuto3Base {
 
     public static double PRELOAD_BEGIN_END_VELO = 0.0;
-    public static double CHAMBER_DELIVER_HEIGHT = 19.4, CHAMBER_DELIVER_DIST_DOWN = 7.5, BEG_END_VEL_FOR_FAST_PATHS = 10.0;
+    public static double CHAMBER_DELIVER_HEIGHT = 19.4, CHAMBER_DELIVER_DIST_DOWN = 8.5, BEG_END_VEL_FOR_FAST_PATHS = 10.0;
     public static int DELIVER_DELAY = 0, DELIVERY_CLAW_OPEN_DELAY = 200, DELIVERY_CLAW_CLOSE_DELAY = 100,
             FIRST_SAMPLE_EXTEND_DELAY = 500, INTAKE_DELAY_SPIKE_MARKS = 000, INTAKE_DELAY = 200, SAMPLE_INTAKE_TO_OBS_POS_DELAY = 500,
             SPIKE_MARK_INTAKE_TANGENT_DEG = -60;

@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.task.IntakeTurretTask;
 import org.firstinspires.ftc.teamcode.util.Utils;
 import org.firstinspires.ftc.teamcode.util.limelight.Coordinates;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightConfig;
+import org.firstinspires.ftc.teamcode.util.limelight.LimelightProcessorBase;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightSampleDetector;
 import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 import org.firstinspires.ftc.teamcode.util.pid.PIDCoefficients;
@@ -37,13 +38,13 @@ public abstract class RobotBase extends PinpointDrive {
     // Vertical Slides Constants
     public static double VERTICAL_EXTEND_MIN_IN = -0.2, VERTICAL_EXTEND_MAX_IN = 30.0; //actually 29
     public static double VERTICAL_TICKS_PER_INCH = 938.0/29;
-    public static double VERTICAL_SLIDE_DOWN_POWER_TELEOP = -0.5, VERTICAL_SLIDE_DOWN_POWER_AUTO = -0.7;
+    public static double VERTICAL_SLIDE_DOWN_POWER_TELEOP = -0.6, VERTICAL_SLIDE_DOWN_POWER_AUTO = -0.8;
 
     // Horizontal Slides Constants
     public static double HORIZONTAL_EXTEND_MIN_IN = -2.0, HORIZONTAL_EXTEND_MAX_IN = 21.5;
     public static double HORIZONTAL_TICKS_PER_INCH = 690/21.5;
 
-    public static double RELEASE_HANG_POS = 0, STOW_HANG_POS = 1;
+    public static double RELEASE_HANG_POS = 0, STOW_HANG_POS = 1.0;
 
     // Intake Constants
 
@@ -362,11 +363,11 @@ public abstract class RobotBase extends PinpointDrive {
         return hangEngaged;
     }
 
-    public void setHangMotorPowers(double pow) {
+    public void setHangMotorPowers(double hangDrivetrainPow, double hangSlidesPow) {
         // pow should be non-negative
-        rightFront.setPower(-pow);
-        leftFront.setPower(-pow);
-        setVerticalSlidePowerWithoutEncoder(-pow);
+        rightFront.setPower(-hangDrivetrainPow);
+        leftFront.setPower(-hangDrivetrainPow);
+        setVerticalSlidePowerWithoutEncoder(-hangSlidesPow);
     }
 
     public void releaseHang() {
@@ -410,5 +411,8 @@ public abstract class RobotBase extends PinpointDrive {
     }
     public SampleOrientation getLimelightObjectOrientation() {
         return limelightSampleDetector.getObjectOrientation();
+    }
+    public void setLimelightMaxDetectionDistInch(double dist){
+        limelightSampleDetector.setMaxDetectableDistInch(dist);
     }
 }

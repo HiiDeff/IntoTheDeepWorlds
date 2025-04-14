@@ -42,6 +42,7 @@ public abstract class SpecimenAuto2Base extends LinearOpMode {
         robot = createRobot(hardwareMap);
         resetRobot();
         robot.setLimelightPipeline(isRed()? IntakeSampleState.SampleColor.COLOR_RED : IntakeSampleState.SampleColor.COLOR_BLUE);
+        robot.setLimelightMaxDetectionDistInch(15.0);
 
         sensorUpdateThread = new SensorUpdateThread(robot);
 

@@ -17,10 +17,15 @@ public abstract class LimelightProcessorBase {
     protected LLResult result = null;
     protected double[] pythonResult = {0};
     protected List<Coordinates> sortedCoordinates;
+    public static double MAX_DETECTABLE_DIST_INCH = 30.0;
 
     public LimelightProcessorBase(Limelight3A limelight, LimelightConfig LLConfig) {
         this.limelight = limelight;
         this.LLConfig = LLConfig;
+    }
+
+    public void setMaxDetectableDistInch(double dist) {
+        MAX_DETECTABLE_DIST_INCH = dist;
     }
 
     public synchronized void updateLimelight() {
@@ -97,10 +102,9 @@ public abstract class LimelightProcessorBase {
         List<Coordinates> realWorld = new ArrayList<>();
         for(Coordinates i: normalizedCoordinates) {
             Coordinates temp = normalizedPixelToRealWorldCoordinates(i);
-            Log.e("edbug rwcoordinates prev", temp.getX()+" "+temp.getY()+" "+temp.getAngle());
+            if(temp.getY() > MAX_DETECTABLE_DIST_INCH) continue;
             temp.angle = i.angle;
             realWorld.add(temp);
-            Log.e("edbug rwcoordinates ", temp.getX()+" "+temp.getY()+" "+temp.getAngle());
         }
         return realWorld;
     }

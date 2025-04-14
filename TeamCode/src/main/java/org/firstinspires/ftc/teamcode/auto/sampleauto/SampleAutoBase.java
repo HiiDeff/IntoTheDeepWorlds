@@ -40,6 +40,7 @@ public abstract class SampleAutoBase extends LinearOpMode {
         robot = createRobot(hardwareMap);
         resetRobot();
         robot.setLimelightPipeline(IntakeSampleState.SampleColor.COLOR_YELLOW);
+        robot.setLimelightMaxDetectionDistInch(20.0);
         while (opModeInInit()) {
             telemetry.addData("initializing", 1);
             telemetry.update();

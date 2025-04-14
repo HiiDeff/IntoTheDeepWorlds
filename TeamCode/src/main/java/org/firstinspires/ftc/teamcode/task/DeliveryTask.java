@@ -57,6 +57,7 @@ public class DeliveryTask extends TimedTask {
 
     public enum Position {
         TRANSFER,
+        TRANSFER_READY,
         FLAT,
         UP,
         CLIP,

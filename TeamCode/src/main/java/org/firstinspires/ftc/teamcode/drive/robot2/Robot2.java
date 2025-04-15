@@ -52,8 +52,8 @@ public class Robot2 extends RobotBase {
             TURRET_STRAIGHT = 0.36,
             TURRET_LEFT_45_DEG = 0.15, //0.10 but then the servos get weird
             TURRET_RIGHT_45_DEG = 0.6;
-    public static double INTAKE_CLAW_CLOSE = 0.32,
-            INTAKE_CLAW_OPEN = 0.37;
+    public static double INTAKE_CLAW_CLOSE = 0.1,//32,
+            INTAKE_CLAW_OPEN = 0.55;//37;
 //    public static double INTAKE_PIVOT_TILTED_LEFT = 0.46,
 //            INTAKE_PIVOT_TILTED_RIGHT = 0.16,
 //            INTAKE_PIVOT_HORIZONTAL = 0.63,

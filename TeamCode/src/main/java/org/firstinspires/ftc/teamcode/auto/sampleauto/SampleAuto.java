@@ -336,16 +336,16 @@ public abstract class SampleAuto extends SampleAutoBase {
                 new ParallelTask(
                         new IntakeArmTask(robot, IntakeArmTask.Position.SLIGHTLY_UP),
                         new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
-                        new IntakeWristTask(robot, IntakeWristTask.Position.SLIGHTLY_UP),
-                        new DecisionTask(
-                                new SampleStateCondition(robot),
-                                new IntakePivotTask(robot, SampleOrientation.VERTICAL),
-                                new IntakePivotTask(robot, SampleOrientation.VERTICAL_INVERSE)
-                        )
+                        new IntakeWristTask(robot, IntakeWristTask.Position.SLIGHTLY_UP)
                 )
         );
         task.add(
                 new ParallelTask(
+                        new DecisionTask(
+                                new SampleStateCondition(robot),
+                                new IntakePivotTask(robot, SampleOrientation.VERTICAL),
+                                new IntakePivotTask(robot, SampleOrientation.VERTICAL_INVERSE)
+                        ),
                         new HorizontalSlidesWithoutCancelTask(robot, -0.5, 1.0, 1500),
                         new IntakeWristTask(robot, IntakeWristTask.Position.TRANSFER),
                         new IntakeArmTask(robot, IntakeArmTask.Position.TRANSFER)

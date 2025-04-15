@@ -206,7 +206,7 @@ public class TeleOp1 extends LinearOpMode {
                     ),
                     new HorizontalSlidesTask(robot, 0, 1.0, 1500)
             );
-        } else if (gp2.onceDpadLeft()) {
+        } else if (gp2.onceDpadLeft()||gp1.onceDpadLeft()) {
             if(intakeTask != null) intakeTask.cancel();
             intakeState = IntakeState.NEUTRAL;
             intakeTask = new ParallelTask(

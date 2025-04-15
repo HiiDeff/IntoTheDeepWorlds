@@ -26,10 +26,10 @@ import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 public abstract class SpecimenAuto3 extends SpecimenAuto3Base {
 
     public static double PRELOAD_BEGIN_END_VELO = 0.0;
-    public static double CHAMBER_DELIVER_HEIGHT = 19.4, CHAMBER_DELIVER_DIST_DOWN = 8.5, BEG_END_VEL_FOR_FAST_PATHS = 10.0;
+    public static double CHAMBER_DELIVER_HEIGHT = 19.0, CHAMBER_DELIVER_DIST_DOWN = 8.5, BEG_END_VEL_FOR_FAST_PATHS = 10.0;
     public static int DELIVER_DELAY = 0, DELIVERY_CLAW_OPEN_DELAY = 200, DELIVERY_CLAW_CLOSE_DELAY = 100,
             FIRST_SAMPLE_EXTEND_DELAY = 500, INTAKE_DELAY_SPIKE_MARKS = 000, INTAKE_DELAY = 200, SAMPLE_INTAKE_TO_OBS_POS_DELAY = 500,
-            SPIKE_MARK_INTAKE_TANGENT_DEG = -60;
+            SPIKE_MARK_INTAKE_TANGENT_DEG = -80;
 
     @Override
     protected Task createStartTask() {
@@ -73,53 +73,59 @@ public abstract class SpecimenAuto3 extends SpecimenAuto3Base {
 
         if(autoStates.getSpikeMarkNumber()==1) {
             task.add(
-                    new RuntimeDrivingTask(
-                            robot,
-                            builder -> {
-                                Pose2d pos = getSpikeMark1ReadyPos();
-                                return builder
-                                        .strafeToLinearHeading(pos.position, pos.heading, new TranslationalVelConstraint(90))
-                                        .build();
-                            },
-                            15.0
-                    )
+                    new ParallelTask(
+                            new RuntimeDrivingTask(
+                                    robot,
+                                    builder -> {
+                                        Pose2d pos = getSpikeMark1ReadyPos();
+                                        return builder
+                                                .strafeToLinearHeading(pos.position, pos.heading, new TranslationalVelConstraint(90))
+                                                .build();
+                                    },
+                                    15.0
+                            ),
+                            new HorizontalSlidesTask(robot, 0.0, 1.0, 1000),
+                            new VerticalSlidesTask(robot, 0.0, 1.0, 1000),
+                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.FLAT),
+                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.FLAT)
+                        )
             );
         }
-        task.add(
-                new ParallelTask(
-                        new HorizontalSlidesTask(robot, 0.0, 1.0, 750),
-                        new VerticalSlidesTask(robot, 0.0, 1.0, 750),
-                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.FLAT),
-                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.FLAT),
-                        new RuntimeDrivingTask(
-                                robot,
-                                builder -> {
-                                    Pose2d intakePos = getSpikeMark1IntakePos();
-                                    if(autoStates.getSpikeMarkNumber()==2) intakePos = getSpikeMark2IntakePos();
-                                    else if(autoStates.getSpikeMarkNumber()==3) intakePos = getSpikeMark3IntakePos();
-
-                                    return builder
-                                            .setTangent(0.0)
-                                            .splineToLinearHeading(intakePos, Math.toRadians(SPIKE_MARK_INTAKE_TANGENT_DEG), new TranslationalVelConstraint(90))
-                                            .build();
-                                },
-                                30.0
-                        )
-                )
-        );
         task.add(
                 new RuntimeDrivingTask(
                         robot,
                         builder -> {
-                            Pose2d deliverPos = getSpikeMark1DeliverPos();
-                            if(autoStates.getSpikeMarkNumber()==2) deliverPos = getSpikeMark2DeliverPos();
-                            else if(autoStates.getSpikeMarkNumber()==3) deliverPos = getSpikeMark3DeliverPos();
+                            Pose2d intakeLeftPos = getSpikeMark1IntakeLeftPos();
+                            if(autoStates.getSpikeMarkNumber()==2) intakeLeftPos = getSpikeMark2IntakeLeftPos();
+                            else if(autoStates.getSpikeMarkNumber()==3) intakeLeftPos = getSpikeMark3IntakeLeftPos();
+                            Pose2d intakePos = getSpikeMark1IntakePos();
+                            if(autoStates.getSpikeMarkNumber()==2) intakePos = getSpikeMark2IntakePos();
+                            else if(autoStates.getSpikeMarkNumber()==3) intakePos = getSpikeMark3IntakePos();
 
                             return builder
-                                    .strafeToLinearHeading(deliverPos.position, deliverPos.heading, new TranslationalVelConstraint(90))
+                                    .strafeToLinearHeading(intakeLeftPos.position, intakeLeftPos.heading, new TranslationalVelConstraint(90))
+                                    .strafeToLinearHeading(intakePos.position, intakePos.heading, new TranslationalVelConstraint(90))
                                     .build();
                         },
                         30.0
+                )
+        );
+        task.add(
+                new ParallelTask(
+                        new RuntimeDrivingTask(
+                                robot,
+                                builder -> {
+                                    Pose2d deliverPos = getSpikeMark1DeliverPos();
+                                    if(autoStates.getSpikeMarkNumber()==2) deliverPos = getSpikeMark2DeliverPos();
+                                    else if(autoStates.getSpikeMarkNumber()==3) deliverPos = getSpikeMark3DeliverPos();
+
+                                    return builder
+                                            .strafeToLinearHeading(deliverPos.position, deliverPos.heading, new TranslationalVelConstraint(90))
+                                            .build();
+                                },
+                                30.0
+                        ),
+                        new HorizontalSlidesTask(robot, 0.0, 1.0, 500)
                 )
         );
         if(autoStates.getSpikeMarkNumber()==AA_NUM_OF_SPIKE_MARKS) {
@@ -181,7 +187,7 @@ public abstract class SpecimenAuto3 extends SpecimenAuto3Base {
                                         new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.FLAT),
                                         new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.FLAT)
                                 ),
-                                new VerticalSlidesTask(robot, 0.0,1.0,500)
+                                new VerticalSlidesTask(robot, 0.0,1.0,1000)
                         ),
                         new SeriesTask(
                                 new SleepTask(DELIVER_DELAY),
@@ -211,10 +217,13 @@ public abstract class SpecimenAuto3 extends SpecimenAuto3Base {
     protected abstract Pose2d getCycleIntakePos();
     protected abstract Pose2d getCycleDeliverPos();
     protected abstract Pose2d getSpikeMark1ReadyPos();
+    protected abstract Pose2d getSpikeMark1IntakeLeftPos();
     protected abstract Pose2d getSpikeMark1IntakePos();
     protected abstract Pose2d getSpikeMark1DeliverPos();
+    protected abstract Pose2d getSpikeMark2IntakeLeftPos();
     protected abstract Pose2d getSpikeMark2IntakePos();
     protected abstract Pose2d getSpikeMark2DeliverPos();
+    protected abstract Pose2d getSpikeMark3IntakeLeftPos();
     protected abstract Pose2d getSpikeMark3IntakePos();
     protected abstract Pose2d getSpikeMark3DeliverPos();
 

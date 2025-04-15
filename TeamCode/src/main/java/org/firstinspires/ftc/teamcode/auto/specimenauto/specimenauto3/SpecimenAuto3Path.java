@@ -30,7 +30,7 @@ public class SpecimenAuto3Path extends SpecimenAuto3 {
 
     @Override
     protected Pose2d getCycleIntakePos() {
-        return new Pose2d(-0.4,-29.582,0.0);
+        return new Pose2d(-0.0,-29.582,0.0);
     }
 
     @Override
@@ -40,36 +40,50 @@ public class SpecimenAuto3Path extends SpecimenAuto3 {
 
     @Override
     protected Pose2d getSpikeMark1ReadyPos() {
-        return new Pose2d(22.788,-26.410,0.0);
+        return new Pose2d(16.788,-24.410,0.0);
     }
 
     @Override
+    protected Pose2d getSpikeMark1IntakeLeftPos() {
+        return new Pose2d(45,-26, 0.0);
+    }
+    @Override
     protected Pose2d getSpikeMark1IntakePos() {
-        return new Pose2d(50.12,-28.46, 0.0);
+        return new Pose2d(49,-33, 0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark1DeliverPos() {
-        return new Pose2d(5.83,-30.46, 0.0);
+        return new Pose2d(4,-26, 0.0);
+    }
+
+    @Override
+    protected Pose2d getSpikeMark2IntakeLeftPos() {
+        return new Pose2d(45,-32,0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark2IntakePos() {
-        return new Pose2d(60.22,-52.235,0.0);
+        return new Pose2d(49,-50,0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark2DeliverPos() {
-        return new Pose2d(5.698,-40.235,0.0);
+        return new Pose2d(6,-36,0.0);
+    }
+
+    @Override
+    protected Pose2d getSpikeMark3IntakeLeftPos() {
+        return new Pose2d(55,-57,0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark3IntakePos() {
-        return new Pose2d(56.76,-56.89,0.0);
+        return new Pose2d(58,-63,0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark3DeliverPos() {
-        return new Pose2d(3.556,-46.31,0.0);
+        return new Pose2d(6,-50,0.0);
     }
 }

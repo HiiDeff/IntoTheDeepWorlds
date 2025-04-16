@@ -49,6 +49,7 @@ public class Robot2 extends RobotBase {
             INTAKE_WRIST_SLIGHTLY_UP = 0.59,
             INTAKE_WRIST_OBS_ZONE = 0.59;
     public static double TURRET_OBS_ZONE = 0.99,
+            TURRET_OBS_ZONE_READY = 0.90,
             TURRET_STRAIGHT = 0.36,
             TURRET_LEFT_45_DEG = 0.15, //0.10 but then the servos get weird
             TURRET_RIGHT_45_DEG = 0.6;
@@ -175,6 +176,8 @@ public class Robot2 extends RobotBase {
         switch(position) {
             case OBS_ZONE:
                 return TURRET_OBS_ZONE;
+            case OBS_ZONE_READY:
+                return TURRET_OBS_ZONE_READY;
             case LEFT_45_DEG:
                 return TURRET_LEFT_45_DEG;
             case RIGHT_45_DEG:

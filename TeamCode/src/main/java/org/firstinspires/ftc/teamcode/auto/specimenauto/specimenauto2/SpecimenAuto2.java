@@ -112,7 +112,7 @@ public abstract class SpecimenAuto2 extends SpecimenAuto2Base {
                                         new IntakeWristTask(robot, IntakeWristTask.Position.OBS_ZONE),
                                         new IntakePivotTask(robot, SampleOrientation.TILTED_RIGHT)
                                 ),
-                                new IntakeTurretTask(robot, IntakeTurretTask.Position.OBS_ZONE)
+                                new IntakeTurretTask(robot, IntakeTurretTask.Position.OBS_ZONE_READY)
                         ),
                         new SeriesTask(
                                 new SleepTask(SAMPLE_INTAKE_TO_OBS_POS_DELAY),
@@ -133,7 +133,9 @@ public abstract class SpecimenAuto2 extends SpecimenAuto2Base {
         task.add(
                 new ParallelTask(
                         new SeriesTask(
+                                new IntakeTurretTask(robot, IntakeTurretTask.Position.OBS_ZONE),
                                 new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
+                                new SleepTask(150),
                                 new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
                                 new ParallelTask(
                                         new IntakeArmTask(robot, IntakeArmTask.Position.BACK),

@@ -5,10 +5,11 @@ import android.util.Log;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.auto.conditions.SampleStateCondition;
@@ -17,10 +18,9 @@ import org.firstinspires.ftc.teamcode.drive.IntakeSampleState;
 import org.firstinspires.ftc.teamcode.drive.RobotBase;
 import org.firstinspires.ftc.teamcode.drive.RobotFactory;
 import org.firstinspires.ftc.teamcode.drive.SensorUpdateThread;
-import org.firstinspires.ftc.teamcode.drive.robot1.Robot1;
 import org.firstinspires.ftc.teamcode.task.DecisionTask;
-import org.firstinspires.ftc.teamcode.task.HangTask;
 import org.firstinspires.ftc.teamcode.task.ParallelTask;
+import org.firstinspires.ftc.teamcode.task.RuntimeDrivingTask;
 import org.firstinspires.ftc.teamcode.task.SeriesTask;
 import org.firstinspires.ftc.teamcode.task.SleepTask;
 import org.firstinspires.ftc.teamcode.task.Task;
@@ -37,17 +37,17 @@ import org.firstinspires.ftc.teamcode.util.GamePad;
 import org.firstinspires.ftc.teamcode.util.limelight.Coordinates;
 import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 
-@TeleOp(name = "TeleOp1")
 @Config
-public class TeleOp1 extends LinearOpMode {
+public abstract class WorldsTeleOp extends LinearOpMode {
 
     private Task intakeTask = null, deliveryTask = null;
     private IntakeState intakeState = IntakeState.NEUTRAL;
     private boolean clawOpen, intakeClawVertical = true, testToggle = false, horizontalSlidesClose = false;
     public static double VERTICAL_STAND_POWER = 0.15, MAX_VERTICAL_SLIDE_HEIGHT_INCH = 32.0,
-            CHAMBER_DELIVER_HEIGHT = 20, CHAMBER_DELIVER_DIST_DOWN = 8.5, HANG_HEIGHT_VERTICAL_SLIDES = 16.5, HANG_VERTICAL_SLIDES_REST_ON_BAR = 3.1;//rest on bar position = 125 ticks or 3.8265 inches
+            CHAMBER_DELIVER_HEIGHT = 20, CHAMBER_DELIVER_DIST_DOWN = 8.5, HANG_HEIGHT_VERTICAL_SLIDES = 16.5, HANG_VERTICAL_SLIDES_REST_ON_BAR = 3.0;//rest on bar position = 125 ticks or 3.8265 inches
     public static double HANG_DRIVETRAIN_POWER = 1.0, HANG_SLIDE_POWER = 1.0;
     public static int DELIVERY_CLAW_OPEN_DELAY = 750;
+    public static double AUTO_SPEC_Y = 29, AUTO_SPEC_X = 30;
     private RobotBase robot;
     private GamePad gp1, gp2;
 
@@ -115,17 +115,21 @@ public class TeleOp1 extends LinearOpMode {
         if (gp2.onceY()) {
             if (deliveryTask != null) deliveryTask.cancel();
             if (robot.getVerticalSlidesHeightInch() < 2.0) {
-                deliveryTask = new ParallelTask(
-                        new DeliveryClawTask(robot, DeliveryClawTask.Position.CLOSE),
-                        new SeriesTask(
-                                new SleepTask(200),
-                                new ParallelTask(
-                                        new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT, 1.0, 1000),
-                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
-                                        new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP)
-                                )
-                        )
-                );
+                if(!gp2.back()){
+                    deliveryTask = new ParallelTask(
+                            new DeliveryClawTask(robot, DeliveryClawTask.Position.CLOSE),
+                            new SeriesTask(
+                                    new SleepTask(200),
+                                    new ParallelTask(
+                                            new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT, 1.0, 1000),
+                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
+                                            new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP)
+                                    )
+                            )
+                    );
+                }else {
+                    deliveryTask = createAutoChamberScoreTask();
+                }
             } else {
                 deliveryTask = new SeriesTask(
                         new ParallelTask(
@@ -138,6 +142,8 @@ public class TeleOp1 extends LinearOpMode {
                 );
             }
         }
+
+
         if (gp2.onceA()) {
             if (deliveryTask != null) deliveryTask.cancel();
             deliveryTask = new ParallelTask(
@@ -165,7 +171,7 @@ public class TeleOp1 extends LinearOpMode {
             }
         }else if(gp2.dpadDown()) {
             robot.setVerticalSlidePowerWithoutEncoder(-0.5);
-            if(deliveryTask==null && robot.getVerticalSlidesHeightInch()>30.0) {
+            if(deliveryTask==null && robot.getVerticalSlidesHeightInch()>27.0) {
                 deliveryTask = new ParallelTask(
                         new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN),
                         new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.UP),
@@ -174,6 +180,11 @@ public class TeleOp1 extends LinearOpMode {
             }
         } else if(deliveryTask==null) {
             robot.setVerticalSlidePowerWithoutEncoder(robot.getVerticalSlidesHeightInch() < 2.0 ? 0 : VERTICAL_STAND_POWER);
+        }
+
+        if (gp1.onceA()) {
+            robot.setDeliveryClawPos(clawOpen ? DeliveryClawTask.Position.CLOSE : DeliveryClawTask.Position.OPEN);
+            clawOpen = !clawOpen;
         }
     }
 
@@ -192,6 +203,12 @@ public class TeleOp1 extends LinearOpMode {
     }
 
     private void runIntake(){
+        if(gp1.onceY()) {
+           robot.setLimelightPipeline(IntakeSampleState.SampleColor.COLOR_YELLOW);
+        } else if(gp1.onceX()) {
+            robot.setLimelightPipeline(isRed()? IntakeSampleState.SampleColor.COLOR_RED:IntakeSampleState.SampleColor.COLOR_BLUE);
+        }
+
         if (gp1.onceDpadRight()) {
             if(intakeTask != null) intakeTask.cancel();
             intakeState = IntakeState.OBS_ZONE;
@@ -202,7 +219,7 @@ public class TeleOp1 extends LinearOpMode {
                                     new IntakeWristTask(robot, IntakeWristTask.Position.OBS_ZONE),
                                     new IntakePivotTask(robot, SampleOrientation.TILTED_RIGHT)
                             ),
-                            new IntakeTurretTask(robot, IntakeTurretTask.Position.OBS_ZONE)
+                            new IntakeTurretTask(robot, IntakeTurretTask.Position.OBS_ZONE_READY)
                     ),
                     new HorizontalSlidesTask(robot, 0, 1.0, 1500)
             );
@@ -211,8 +228,9 @@ public class TeleOp1 extends LinearOpMode {
             intakeState = IntakeState.NEUTRAL;
             intakeTask = new ParallelTask(
                     new SeriesTask(
+                            new IntakeTurretTask(robot, IntakeTurretTask.Position.OBS_ZONE),
                             new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
-                            new SleepTask(400),
+                            new SleepTask(300),
                             new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
                             new ParallelTask(
                                     new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
@@ -243,7 +261,7 @@ public class TeleOp1 extends LinearOpMode {
             else if(intakeState == IntakeState.READY || intakeState == IntakeState.TRANSFER) {
                 if(intakeTask != null) intakeTask.cancel();
                 //go to hover
-                if(gp1.rightBumper()) {
+                if(gp1.a()) {
                     intakeTask = createAutoIntakeTask();
                     horizontalSlidesClose = false;
                     intakeClawVertical = false;
@@ -274,14 +292,18 @@ public class TeleOp1 extends LinearOpMode {
             }
         }
 
-        if (gp1.onceA() || gp2.onceA()) {
-            robot.setDeliveryClawPos(clawOpen ? DeliveryClawTask.Position.CLOSE : DeliveryClawTask.Position.OPEN);
-            clawOpen = !clawOpen;
+        if (gp1.onceRightBumper()) {
+            if(!gp1.back()){
+                robot.setIntakePivotPos(intakeClawVertical? SampleOrientation.HORIZONTAL : SampleOrientation.VERTICAL);
+                intakeClawVertical = ! intakeClawVertical;
+            } else {
+                robot.resetHorizontalAndVerticalSlidesEncoderPositions();
+            }
         }
 
-        if (gp1.onceRightBumper()) {
-            robot.setIntakePivotPos(intakeClawVertical? SampleOrientation.HORIZONTAL : SampleOrientation.VERTICAL);
-            intakeClawVertical = ! intakeClawVertical;
+        if(intakeTask==null){
+            if(gp1.dpadUp()) robot.setHorizontalSlidesPowerWithoutEncoder(1.0);
+            else if(gp1.dpadDown()) robot.setHorizontalSlidesPowerWithoutEncoder(-1.0);
         }
     }
 
@@ -291,7 +313,7 @@ public class TeleOp1 extends LinearOpMode {
             robot.initHang();
             robot.setVerticalSlidePowerWithoutEncoder(pow);
         }else if(-gp2.leftStickY()<-0.5 && -gp2.rightStickY()<-0.5) {
-            if(robot.getVerticalSlidesHeightInch()>HANG_VERTICAL_SLIDES_REST_ON_BAR || gp2.leftTrigger()>0.3 && gp2.rightTrigger()>0.3) {
+            if(!(gp2.leftTrigger()>0.3&&gp2.rightTrigger()>0.3) || robot.getVerticalSlidesHeightInch()>HANG_VERTICAL_SLIDES_REST_ON_BAR) {
                 if (!robot.isHangEngaged()) {
                     robot.engageHang();
                 }
@@ -396,7 +418,7 @@ public class TeleOp1 extends LinearOpMode {
     private Task createTransferTask() {
         Task transferTask = new SeriesTask(
                 new ParallelTask(
-                        new VerticalSlidesTask(robot, 0.0, 1.0, 500),
+                        new VerticalSlidesTask(robot, 0.0, 1.0, 750),
                         new DeliveryClawTask(robot, DeliveryClawTask.Position.OPEN),
                         new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.TRANSFER),
                         new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.TRANSFER),
@@ -404,6 +426,7 @@ public class TeleOp1 extends LinearOpMode {
                 ),
                 new ParallelTask(
                         new IntakeArmTask(robot, IntakeArmTask.Position.SLIGHTLY_UP),
+                        new IntakeWristTask(robot, IntakeWristTask.Position.SLIGHTLY_UP),
                         new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT)
                 ),
                 new ParallelTask(
@@ -431,7 +454,8 @@ public class TeleOp1 extends LinearOpMode {
                 new HorizontalSlidesTask(robot, 0.0, 1.0, 1500),
                 new IntakeArmTask(robot, IntakeArmTask.Position.SLIGHTLY_UP),
                 new IntakeWristTask(robot, IntakeWristTask.Position.SLIGHTLY_UP),
-                new IntakePivotTask(robot, SampleOrientation.VERTICAL)
+                new IntakePivotTask(robot, SampleOrientation.VERTICAL),
+                new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT)
         );
         return readyTask;
     }
@@ -441,7 +465,8 @@ public class TeleOp1 extends LinearOpMode {
                 new HorizontalSlidesTask(robot, 0.0, 1.0, 1500),
                 new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
                 new IntakeWristTask(robot, IntakeWristTask.Position.BACK),
-                new IntakePivotTask(robot, SampleOrientation.VERTICAL)
+                new IntakePivotTask(robot, SampleOrientation.VERTICAL),
+                new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT)
         );
         return neutralTask;
     }
@@ -488,5 +513,41 @@ public class TeleOp1 extends LinearOpMode {
 
         return task;
     }
+    private Task createAutoChamberScoreTask() {
+        robot.pinpoint.resetPosAndIMU();
+        ParallelTask autoChamberScoreTask = new ParallelTask(
+                new DeliveryClawTask(robot, DeliveryClawTask.Position.CLOSE),
+                new SeriesTask(
+                        new SleepTask(500),
+                        new ParallelTask(
+                                new RuntimeDrivingTask(
+                                        robot,
+                                        builder -> {
+                                            Pose2d pos = new Pose2d(AUTO_SPEC_X, AUTO_SPEC_Y, 0.0);
+                                            return builder.
+                                                    strafeToLinearHeading(pos.position, pos.heading, new TranslationalVelConstraint(90))
+                                                    .build();
+                                        }
+                                ),
+                                new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT, 1.0, 1500),
+                                new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
+                                new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP),
+                                new SeriesTask(
+                                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
+                                        new IntakeArmTask(robot, IntakeArmTask.Position.SLIGHTLY_UP),
+                                        new IntakeWristTask(robot, IntakeWristTask.Position.SLIGHTLY_UP)
+                                )
+                        )
+                )
+        );
+        return autoChamberScoreTask;
+
+    }
+
+    protected abstract boolean isRed();
 
 }
+
+
+
+

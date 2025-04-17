@@ -38,7 +38,7 @@ public abstract class RobotBase extends PinpointDrive {
     // Vertical Slides Constants
     public static double VERTICAL_EXTEND_MIN_IN = -0.2, VERTICAL_EXTEND_MAX_IN = 30.0; //actually 29
     public static double VERTICAL_TICKS_PER_INCH = 938.0/29;
-    public static double VERTICAL_SLIDE_DOWN_POWER_TELEOP = -0.6, VERTICAL_SLIDE_DOWN_POWER_AUTO = -0.8;
+    public static double VERTICAL_SLIDE_DOWN_POWER_TELEOP = -0.8, VERTICAL_SLIDE_DOWN_POWER_AUTO = -0.9;
 
     // Horizontal Slides Constants
     public static double HORIZONTAL_EXTEND_MIN_IN = -2.0, HORIZONTAL_EXTEND_MAX_IN = 21.5;

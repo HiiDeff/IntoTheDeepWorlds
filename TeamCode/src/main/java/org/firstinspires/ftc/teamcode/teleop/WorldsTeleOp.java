@@ -205,7 +205,7 @@ public abstract class WorldsTeleOp extends LinearOpMode {
     private void runIntake(){
         if(gp1.onceY()) {
            robot.setLimelightPipeline(IntakeSampleState.SampleColor.COLOR_YELLOW);
-        } else if(gp1.onceX()) {
+        } else if(gp1.onceB()) {
             robot.setLimelightPipeline(isRed()? IntakeSampleState.SampleColor.COLOR_RED:IntakeSampleState.SampleColor.COLOR_BLUE);
         }
 

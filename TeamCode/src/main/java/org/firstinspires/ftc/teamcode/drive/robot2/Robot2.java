@@ -42,7 +42,7 @@ public class Robot2 extends RobotBase {
             INTAKE_ARM_BACK = 0.26,
             INTAKE_ARM_SLIGHTLY_UP = 0.3,
             INTAKE_ARM_OBS_ZONE = 0.54;
-    public static double INTAKE_WRIST_TRANSFER = 0.20,
+    public static double INTAKE_WRIST_TRANSFER = 0.18,
             INTAKE_WRIST_HOVER = 0.86,
             INTAKE_WRIST_DOWN = 0.86,
             INTAKE_WRIST_BACK = 0.21,

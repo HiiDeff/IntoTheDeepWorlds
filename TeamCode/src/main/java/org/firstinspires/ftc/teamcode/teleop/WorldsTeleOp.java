@@ -44,7 +44,7 @@ public abstract class WorldsTeleOp extends LinearOpMode {
     private IntakeState intakeState = IntakeState.NEUTRAL;
     private boolean clawOpen, intakeClawVertical = true, testToggle = false, horizontalSlidesClose = false;
     public static double VERTICAL_STAND_POWER = 0.15, MAX_VERTICAL_SLIDE_HEIGHT_INCH = 32.0,
-            CHAMBER_DELIVER_HEIGHT = 20, CHAMBER_DELIVER_DIST_DOWN = 8.5, HANG_HEIGHT_VERTICAL_SLIDES = 16.5, HANG_VERTICAL_SLIDES_REST_ON_BAR = 3.0;//rest on bar position = 125 ticks or 3.8265 inches
+            CHAMBER_DELIVER_HEIGHT = 19.5, CHAMBER_DELIVER_DIST_DOWN = 8.5, HANG_HEIGHT_VERTICAL_SLIDES = 16.5, HANG_VERTICAL_SLIDES_REST_ON_BAR = 3.0;//rest on bar position = 125 ticks or 3.8265 inches
     public static double HANG_DRIVETRAIN_POWER = 1.0, HANG_SLIDE_POWER = 1.0;
     public static int DELIVERY_CLAW_OPEN_DELAY = 750;
     public static double AUTO_SPEC_Y = 29, AUTO_SPEC_X = 30;
@@ -117,6 +117,7 @@ public abstract class WorldsTeleOp extends LinearOpMode {
             if (robot.getVerticalSlidesHeightInch() < 2.0) {
                 if(!gp2.back()){
                     deliveryTask = new ParallelTask(
+                            new HorizontalSlidesTask(robot, 0.0, 1.0,500),
                             new DeliveryClawTask(robot, DeliveryClawTask.Position.CLOSE),
                             new SeriesTask(
                                     new SleepTask(200),

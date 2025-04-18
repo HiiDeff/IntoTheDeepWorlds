@@ -169,7 +169,7 @@ public abstract class WorldsTeleOp extends LinearOpMode {
                 );
                 intakeState = IntakeState.NEUTRAL;
             }
-        }else if(gp2.dpadDown()) {
+        }else if(gp2.dpadDown()&&robot.getVerticalSlidesHeightInch()>0.5) {
             robot.setVerticalSlidePowerWithoutEncoder(-0.5);
             if(deliveryTask==null && robot.getVerticalSlidesHeightInch()>27.0) {
                 deliveryTask = new ParallelTask(
@@ -250,7 +250,7 @@ public abstract class WorldsTeleOp extends LinearOpMode {
             intakeState = IntakeState.TRANSFER;
         }
 
-        if(gp1.onceRightTrigger()) {
+        if(gp2.onceRightTrigger()) {
             if(intakeState == IntakeState.NEUTRAL) {
                 if(intakeTask != null) intakeTask.cancel();
                 //go to ready
@@ -261,7 +261,7 @@ public abstract class WorldsTeleOp extends LinearOpMode {
             else if(intakeState == IntakeState.READY || intakeState == IntakeState.TRANSFER) {
                 if(intakeTask != null) intakeTask.cancel();
                 //go to hover
-                if(gp1.a()) {
+                if(gp2.a()) {
                     intakeTask = createAutoIntakeTask();
                     horizontalSlidesClose = false;
                     intakeClawVertical = false;
@@ -271,13 +271,8 @@ public abstract class WorldsTeleOp extends LinearOpMode {
                     intakeClawVertical = true;
                 }
                 intakeState = IntakeState.HOVER;
-            } else if(intakeState == IntakeState.HOVER) {
-                if(intakeTask != null) intakeTask.cancel();
-                //try to intake
-                intakeTask = createIntakeRetryTask();
-                intakeState = IntakeState.HOVER;
             }
-        } else if(gp1.onceLeftTrigger()) {
+        } else if(gp2.onceLeftTrigger()) {
             if(intakeState == IntakeState.HOVER) {
                 if(intakeTask != null) intakeTask.cancel();
                 //go to ready
@@ -289,6 +284,14 @@ public abstract class WorldsTeleOp extends LinearOpMode {
                 intakeTask = createNeutralTask();
                 intakeClawVertical = true;
                 intakeState = IntakeState.NEUTRAL;
+            }
+        }
+        if (gp1.onceRightTrigger()) {
+            if(intakeState == IntakeState.HOVER) {
+                if(intakeTask != null) intakeTask.cancel();
+                //try to intake
+                intakeTask = createIntakeRetryTask();
+                intakeState = IntakeState.HOVER;
             }
         }
 
@@ -304,6 +307,7 @@ public abstract class WorldsTeleOp extends LinearOpMode {
         if(intakeTask==null){
             if(gp1.dpadUp()) robot.setHorizontalSlidesPowerWithoutEncoder(1.0);
             else if(gp1.dpadDown()) robot.setHorizontalSlidesPowerWithoutEncoder(-1.0);
+            else if(deliveryTask==null) robot.setHorizontalSlidesPowerWithoutEncoder(0);
         }
     }
 
@@ -363,7 +367,7 @@ public abstract class WorldsTeleOp extends LinearOpMode {
 //        telemetry.addData("objectXPos",objectPosition.x);
 //        telemetry.addData("objectYPos",objectPosition.y);
 //        telemetry.addData("objectAngleRadians",objectPosition.angle);
-
+        multipleTelemetry.addData("vertical slides pos", robot.getVerticalSlidesHeightInch());
         multipleTelemetry.addData("avg cycle time", cycleCnt==0?-1:cycleSum/cycleCnt);
         multipleTelemetry.update();
 
@@ -386,7 +390,7 @@ public abstract class WorldsTeleOp extends LinearOpMode {
 
     private Task createHoverTask() {
         Task hoverTask = new ParallelTask(
-                new HorizontalSlidesTask(robot, 10.0,1.0,1500),
+                new HorizontalSlidesTask(robot, 15.0,1.0,1500),
                 new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
                 new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
                 new IntakePivotTask(robot, SampleOrientation.VERTICAL),
@@ -401,13 +405,11 @@ public abstract class WorldsTeleOp extends LinearOpMode {
     private Task createIntakeRetryTask() {
         Task intakeRetryTask = new SeriesTask(
                 new IntakeClawTask(robot, IntakeClawTask.Position.OPEN),
-                new SleepTask(300),
                 new ParallelTask(
                         new IntakeArmTask(robot, IntakeArmTask.Position.DOWN),
                         new IntakeWristTask(robot, IntakeWristTask.Position.DOWN)
                 ),
                 new IntakeClawTask(robot, IntakeClawTask.Position.CLOSE),
-                new SleepTask(300),
                 new ParallelTask(
                         new IntakeArmTask(robot, IntakeArmTask.Position.HOVER),
                         new IntakeWristTask(robot, IntakeWristTask.Position.HOVER)

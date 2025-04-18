@@ -33,7 +33,7 @@ import org.firstinspires.ftc.teamcode.common.InvKin;
 public abstract class SampleAuto extends SampleAutoBase {
 
     public static int DELIVER_EXTEND_MIN_TIME = 800;
-    public static int DELIVER_CLAW_DELAY = 100, INTAKE_DELAY = 100, DELIVER_DELAY = 250, CYCLE_DRIVE_TO_DELIVER_DELAY = 500, WAIT_AT_SUB_TIME = 500;
+    public static int DELIVER_CLAW_DELAY = 100, INTAKE_DELAY = 100, DELIVER_DELAY = 250, CYCLE_DRIVE_TO_DELIVER_DELAY = 500, WAIT_AT_SUB_TIME = 1000;
     public static double DELIVERY_HEIGHT_INCH = 34.0;
     public static int BUCKET_TO_SUB_START_TANGENT_DEG = -40, BUCKET_TO_SUB_END_TANGENT_DEG = -60;
     public static double TO_SUB_BEGIN_END_VELO = 0.0;

@@ -36,17 +36,17 @@ public class Robot2 extends RobotBase {
     public static ProfileConstraints DELIVERY_ARM_CONSTRAINTS = new ProfileConstraints(10, 12, 16);
 
     // Intake Servo Positions
-    public static double INTAKE_ARM_DOWN = 0.58,
+    public static double INTAKE_ARM_DOWN = 0.59,
             INTAKE_ARM_TRANSFER = 0.66,
             INTAKE_ARM_HOVER = 0.50,
-            INTAKE_ARM_BACK = 0.30,
-            INTAKE_ARM_SLIGHTLY_UP = 0.34,
+            INTAKE_ARM_BACK = 0.26,
+            INTAKE_ARM_SLIGHTLY_UP = 0.3,
             INTAKE_ARM_OBS_ZONE = 0.54;
     public static double INTAKE_WRIST_TRANSFER = 0.20,
             INTAKE_WRIST_HOVER = 0.86,
             INTAKE_WRIST_DOWN = 0.86,
             INTAKE_WRIST_BACK = 0.21,
-            INTAKE_WRIST_SLIGHTLY_UP = 0.59,
+            INTAKE_WRIST_SLIGHTLY_UP = 0.58,
             INTAKE_WRIST_OBS_ZONE = 0.59;
     public static double TURRET_OBS_ZONE = 0.99,
             TURRET_OBS_ZONE_READY = 0.90,
@@ -68,7 +68,7 @@ public class Robot2 extends RobotBase {
             INTAKE_PIVOT_VERTICAL_INVERSE = 0.95;
     public static double DELIVERY_LEFT_TRANSFER = 0.207, DELIVERY_RIGHT_TRANSFER = 0.91,
             DELIVERY_LEFT_TRANSFER_READY = 0.23, DELIVERY_RIGHT_TRANSFER_READY = 0.91,
-            DELIVERY_LEFT_FLAT = 0.755, DELIVERY_RIGHT_FLAT = 0.26,
+            DELIVERY_LEFT_FLAT = 0.77, DELIVERY_RIGHT_FLAT = 0.26,
             DELIVERY_LEFT_UP = 0.5, DELIVERY_RIGHT_UP = 0.91,
             DELIVERY_LEFT_CLIP = 0.15, DELIVERY_RIGHT_CLIP = 0.91,
             DELIVERY_LEFT_DELIVER = 0.68, DELIVERY_RIGHT_DELIVER = 0.91,
@@ -76,8 +76,8 @@ public class Robot2 extends RobotBase {
 
     public static double DELIVERY_CLAW_OPEN = 0.55, DELIVERY_CLAW_CLOSE = 0.3;
 
-    public static double LEFT_HANG_INIT = 0.1, LEFT_HANG_ENGAGED = 0.17,
-            RIGHT_HANG_INIT = 0.92, RIGHT_HANG_ENGAGED = 0.86;
+    public static double LEFT_HANG_INIT = 0.1, LEFT_HANG_ENGAGED = 0.18,
+            RIGHT_HANG_INIT = 0.92, RIGHT_HANG_ENGAGED = 0.85;
 
 
     ///////////////////* HARDWARE *///////////////////

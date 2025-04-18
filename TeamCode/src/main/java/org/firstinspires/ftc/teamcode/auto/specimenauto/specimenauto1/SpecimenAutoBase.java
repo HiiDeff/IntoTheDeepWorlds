@@ -21,7 +21,7 @@ public abstract class SpecimenAutoBase extends LinearOpMode {
 
     public static int AA_NUM_OF_SPIKE_MARKS = 3,
             AA_NUM_OF_CYCLES = 6,
-            AA_NUM_TO_INTAKE = 1;
+            AA_NUM_TO_INTAKE = 0;
 
     public static int INIT_DELAY_TIME = 0;
     public static int AA_TIME_FOR_A_CYCLE = 0000;

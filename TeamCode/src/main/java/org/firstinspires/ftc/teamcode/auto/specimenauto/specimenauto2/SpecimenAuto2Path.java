@@ -76,7 +76,7 @@ public abstract class SpecimenAuto2Path extends SpecimenAuto2 {
 
     @Override
     protected Pose2d getSpikeMark3IntakePos() {
-        return new Pose2d(58, -69, 0.0);
+        return new Pose2d(58, -59, 0.0);
     }
 
     @Override

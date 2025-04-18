@@ -9,14 +9,14 @@ import org.firstinspires.ftc.teamcode.drive.RobotBase;
 import org.firstinspires.ftc.teamcode.drive.RobotFactory;
 
 @Config
-@Autonomous(name = "SPECIMEN Auto (reliable 5 clip)")
+@Autonomous(name = "SPECIMEN Auto (push 5 clip)")
 public class SpecimenAuto3Path extends SpecimenAuto3 {
 
     public static double CYCLE_INTAKE_X_OFFSET = 0.0,
             CYCLE_INTAKE_Y_OFFSET = 0.0,
             CYCLE_DELIVER_X_OFFSET = 0.0,
             CYCLE_DELIVER_Y_OFFSET = 1.5,
-            CYCLE_INITIAL_Y = -1.0;
+            CYCLE_INITIAL_Y = -0.0;
 
     @Override
     protected RobotBase createRobot(HardwareMap hardwareMap) {
@@ -25,7 +25,7 @@ public class SpecimenAuto3Path extends SpecimenAuto3 {
 
     @Override
     protected Pose2d getPreloadDeliverPos() {
-        return new Pose2d(31,-3,0.0);
+        return new Pose2d(30,-3,0.0);
     }
 
     @Override
@@ -35,55 +35,56 @@ public class SpecimenAuto3Path extends SpecimenAuto3 {
 
     @Override
     protected Pose2d getCycleDeliverPos() {
-        return new Pose2d(29.8,CYCLE_INITIAL_Y+autoStates.getCycleNumber()*CYCLE_DELIVER_Y_OFFSET,0.0);
+        return new Pose2d(29.0,CYCLE_INITIAL_Y+autoStates.getCycleNumber()*CYCLE_DELIVER_Y_OFFSET,0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark1ReadyPos() {
-        return new Pose2d(16.788,-24.410,0.0);
+        return new Pose2d(16.788, -24.410, 0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark1IntakeLeftPos() {
-        return new Pose2d(45,-26, 0.0);
+        return new Pose2d(45, -26, 0.0);
     }
+
     @Override
     protected Pose2d getSpikeMark1IntakePos() {
-        return new Pose2d(49,-37, 0.0);
+        return new Pose2d(49, -37, 0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark1DeliverPos() {
-        return new Pose2d(10,-26, 0.0);
+        return new Pose2d(10, -30, 0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark2IntakeLeftPos() {
-        return new Pose2d(45,-35,0.0);
+        return new Pose2d(48, -30, 0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark2IntakePos() {
-        return new Pose2d(49,-50,0.0);
+        return new Pose2d(52, -45, 0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark2DeliverPos() {
-        return new Pose2d(10,-41,0.0);
+        return new Pose2d(7, -41, 0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark3IntakeLeftPos() {
-        return new Pose2d(55,-57,0.0);
+        return new Pose2d(49, -47, 0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark3IntakePos() {
-        return new Pose2d(58,-66,0.0);
+        return new Pose2d(53, -62, 0.0);
     }
 
     @Override
     protected Pose2d getSpikeMark3DeliverPos() {
-        return new Pose2d(10,-55,0.0);
+        return new Pose2d(7, -56, 0.0);
     }
 }

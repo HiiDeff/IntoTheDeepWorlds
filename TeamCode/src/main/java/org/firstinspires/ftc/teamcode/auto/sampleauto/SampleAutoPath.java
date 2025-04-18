@@ -21,7 +21,7 @@ public class SampleAutoPath extends SampleAuto {
             sample3IntakePos = new Pose2d(7.7623,21,0.19),
             sample3DeliverPos = new Pose2d(5.3, 21.7, -0.4),
             submersibleCyclePos = new Pose2d(58.5983, -13.5819, -Math.PI/2),
-            cycleDeliverPos = new Pose2d(4.3, 20.2, -0.5);
+            cycleDeliverPos = new Pose2d(2.3, 20.2, -0.5);
 
     @Override
     protected RobotBase createRobot(HardwareMap hardwareMap) {

@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 
+import org.firstinspires.ftc.teamcode.auto.specimenauto.specimenauto2.SpecimenAuto2Base;
 import org.firstinspires.ftc.teamcode.common.InvKin;
 import org.firstinspires.ftc.teamcode.task.DeliveryClawTask;
 import org.firstinspires.ftc.teamcode.task.DeliveryTask;
@@ -26,8 +27,8 @@ import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 public abstract class SpecimenAuto3 extends SpecimenAuto3Base {
 
     public static double PRELOAD_BEGIN_END_VELO = 0.0;
-    public static double CHAMBER_DELIVER_HEIGHT = 19.0, CHAMBER_DELIVER_DIST_DOWN = 8.5, BEG_END_VEL_FOR_FAST_PATHS = 10.0;
-    public static int DELIVER_DELAY = 0, DELIVERY_CLAW_OPEN_DELAY = 200, DELIVERY_CLAW_CLOSE_DELAY = 100,
+    public static double CHAMBER_DELIVER_HEIGHT = 19.0, CHAMBER_DELIVER_DIST_DOWN = 8.5, BEG_END_VEL_FOR_FAST_PATHS = 20.0;
+    public static int DELIVER_DELAY = 0, DELIVERY_CLAW_OPEN_DELAY = 300, DELIVERY_CLAW_CLOSE_DELAY = 100,
             FIRST_SAMPLE_EXTEND_DELAY = 500, INTAKE_DELAY_SPIKE_MARKS = 000, INTAKE_DELAY = 200, SAMPLE_INTAKE_TO_OBS_POS_DELAY = 500,
             SPIKE_MARK_INTAKE_TANGENT_DEG = -80;
 
@@ -88,26 +89,29 @@ public abstract class SpecimenAuto3 extends SpecimenAuto3Base {
                             new VerticalSlidesTask(robot, 0.0, 1.0, 1000),
                             new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.FLAT),
                             new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.FLAT)
-                        )
+                    )
             );
         }
         task.add(
-                new RuntimeDrivingTask(
-                        robot,
-                        builder -> {
-                            Pose2d intakeLeftPos = getSpikeMark1IntakeLeftPos();
-                            if(autoStates.getSpikeMarkNumber()==2) intakeLeftPos = getSpikeMark2IntakeLeftPos();
-                            else if(autoStates.getSpikeMarkNumber()==3) intakeLeftPos = getSpikeMark3IntakeLeftPos();
-                            Pose2d intakePos = getSpikeMark1IntakePos();
-                            if(autoStates.getSpikeMarkNumber()==2) intakePos = getSpikeMark2IntakePos();
-                            else if(autoStates.getSpikeMarkNumber()==3) intakePos = getSpikeMark3IntakePos();
+                new ParallelTask(
+                        new HorizontalSlidesTask(robot, 0.0, 1.0, 750),
+                        new RuntimeDrivingTask(
+                                robot,
+                                builder -> {
+                                    Pose2d intakeLeftPos = getSpikeMark1IntakeLeftPos();
+                                    if(autoStates.getSpikeMarkNumber()==2) intakeLeftPos = getSpikeMark2IntakeLeftPos();
+                                    else if(autoStates.getSpikeMarkNumber()==3) intakeLeftPos = getSpikeMark3IntakeLeftPos();
+                                    Pose2d intakePos = getSpikeMark1IntakePos();
+                                    if(autoStates.getSpikeMarkNumber()==2) intakePos = getSpikeMark2IntakePos();
+                                    else if(autoStates.getSpikeMarkNumber()==3) intakePos = getSpikeMark3IntakePos();
 
-                            return builder
-                                    .strafeToLinearHeading(intakeLeftPos.position, intakeLeftPos.heading, new TranslationalVelConstraint(90))
-                                    .strafeToLinearHeading(intakePos.position, intakePos.heading, new TranslationalVelConstraint(90))
-                                    .build();
-                        },
-                        30.0
+                                    return builder
+                                            .strafeToLinearHeading(intakeLeftPos.position, intakeLeftPos.heading, new TranslationalVelConstraint(90))
+                                            .strafeToLinearHeading(intakePos.position, intakePos.heading, new TranslationalVelConstraint(90))
+                                            .build();
+                                },
+                                30.0
+                        )
                 )
         );
         task.add(
@@ -135,7 +139,7 @@ public abstract class SpecimenAuto3 extends SpecimenAuto3Base {
                             builder -> {
                                 Pose2d pos = getCycleIntakePos();
                                 return builder.
-                                        strafeToLinearHeading(pos.position, pos.heading)
+                                        strafeToLinearHeading(pos.position, pos.heading, new TranslationalVelConstraint(80))
                                         .build();
                             },
                             0.0

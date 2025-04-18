@@ -23,7 +23,7 @@ public abstract class SpecimenAutoPath extends SpecimenAuto {
 
     @Override
     protected Pose2d getSpikeMark1IntakePos() {
-        return new Pose2d(11.440,-24.517,-0.6598);
+        return new Pose2d(13.440,-22.517,-0.6598);
     }
 
     @Override
@@ -33,7 +33,7 @@ public abstract class SpecimenAutoPath extends SpecimenAuto {
 
     @Override
     protected Pose2d getSpikeMark2IntakePos() {
-        return new Pose2d(14.6415,-27.7,-0.7785);
+        return new Pose2d(14.6415,-27.7,-0.8285);
     }
 
     @Override
@@ -43,7 +43,7 @@ public abstract class SpecimenAutoPath extends SpecimenAuto {
 
     @Override
     protected Pose2d getSpikeMark3IntakePos() {
-        return new Pose2d(13.332, -39.037,-0.7288);
+        return new Pose2d(13.332, -39.037,-0.7888);
     }
 
     @Override

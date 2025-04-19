@@ -16,7 +16,7 @@ public class SpecimenAuto4Path extends SpecimenAuto4 {
             CYCLE_INTAKE_Y_OFFSET = 0.0,
             CYCLE_DELIVER_X_OFFSET = 0.0,
             CYCLE_DELIVER_Y_OFFSET = 1.5,
-            CYCLE_INITIAL_Y = -0.0;
+            CYCLE_INITIAL_Y = -3.0;
 
     @Override
     protected RobotBase createRobot(HardwareMap hardwareMap) {

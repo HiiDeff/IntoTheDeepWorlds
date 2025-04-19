@@ -39,7 +39,7 @@ public abstract class SampleAutoBase extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot = createRobot(hardwareMap);
         resetRobot();
-        robot.setLimelightPipeline(IntakeSampleState.SampleColor.COLOR_YELLOW);
+        robot.setLimelightPipeline(isRed()? IntakeSampleState.SampleColor.COLOR_RED : IntakeSampleState.SampleColor.COLOR_BLUE, isCloseToScreen());
         robot.setLimelightMaxDetectionDistInch(20.0);
         while (opModeInInit()) {
             telemetry.addData("initializing", 1);
@@ -122,6 +122,8 @@ public abstract class SampleAutoBase extends LinearOpMode {
     protected abstract Task createCycleTask();
     protected abstract Task createFinishTask();
     protected abstract Task createTurnToSampleTask();
+    protected abstract boolean isRed();
+    protected abstract boolean isCloseToScreen();
     protected double toR(double degree) {
         return Math.toRadians(degree);
     }

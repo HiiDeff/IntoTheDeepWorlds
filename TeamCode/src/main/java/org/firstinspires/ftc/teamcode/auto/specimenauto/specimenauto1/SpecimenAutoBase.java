@@ -42,7 +42,7 @@ public abstract class SpecimenAutoBase extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot = createRobot(hardwareMap);
         resetRobot();
-        robot.setLimelightPipeline(isRed()? IntakeSampleState.SampleColor.COLOR_RED : IntakeSampleState.SampleColor.COLOR_BLUE);
+        robot.setLimelightPipeline(isRed()? IntakeSampleState.SampleColor.COLOR_RED : IntakeSampleState.SampleColor.COLOR_BLUE, false);
         robot.setLimelightMaxDetectionDistInch(15.0);
 
         sensorUpdateThread = new SensorUpdateThread(robot);

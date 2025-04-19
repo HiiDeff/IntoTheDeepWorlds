@@ -37,7 +37,7 @@ public class Robot2 extends RobotBase {
 
     // Intake Servo Positions
     public static double INTAKE_ARM_DOWN = 0.59,
-            INTAKE_ARM_TRANSFER = 0.66,
+            INTAKE_ARM_TRANSFER = 0.67,
             INTAKE_ARM_HOVER = 0.50,
             INTAKE_ARM_BACK = 0.26,
             INTAKE_ARM_SLIGHTLY_UP = 0.3,
@@ -53,7 +53,7 @@ public class Robot2 extends RobotBase {
             TURRET_STRAIGHT = 0.36,
             TURRET_LEFT_45_DEG = 0.15, //0.10 but then the servos get weird
             TURRET_RIGHT_45_DEG = 0.6;
-    public static double INTAKE_CLAW_CLOSE = 0.1,//32,
+    public static double INTAKE_CLAW_CLOSE = 0.2,//32,
             INTAKE_CLAW_OPEN = 0.55;//37;
 //    public static double INTAKE_PIVOT_TILTED_LEFT = 0.46,
 //            INTAKE_PIVOT_TILTED_RIGHT = 0.16,
@@ -66,13 +66,13 @@ public class Robot2 extends RobotBase {
             INTAKE_PIVOT_HORIZONTAL = 0.63,
             INTAKE_PIVOT_VERTICAL = 0.3,
             INTAKE_PIVOT_VERTICAL_INVERSE = 0.95;
-    public static double DELIVERY_LEFT_TRANSFER = 0.207, DELIVERY_RIGHT_TRANSFER = 0.91,
-            DELIVERY_LEFT_TRANSFER_READY = 0.23, DELIVERY_RIGHT_TRANSFER_READY = 0.91,
-            DELIVERY_LEFT_FLAT = 0.77, DELIVERY_RIGHT_FLAT = 0.26,
-            DELIVERY_LEFT_UP = 0.5, DELIVERY_RIGHT_UP = 0.91,
-            DELIVERY_LEFT_CLIP = 0.15, DELIVERY_RIGHT_CLIP = 0.91,
-            DELIVERY_LEFT_DELIVER = 0.68, DELIVERY_RIGHT_DELIVER = 0.91,
-            DELIVERY_LEFT_INIT = 0.64, DELIVER_RIGHT_INIT = 0.91;
+    public static double DELIVERY_LEFT_TRANSFER = 0.207, DELIVERY_RIGHT_TRANSFER = 0.37,
+            DELIVERY_LEFT_TRANSFER_READY = 0.23, DELIVERY_RIGHT_TRANSFER_READY = 0.37,
+            DELIVERY_LEFT_FLAT = 0.76, DELIVERY_RIGHT_FLAT = 0.264,
+            DELIVERY_LEFT_UP = 0.5, DELIVERY_RIGHT_UP = 0.37,
+            DELIVERY_LEFT_CLIP = 0.15, DELIVERY_RIGHT_CLIP = 0.37,
+            DELIVERY_LEFT_DELIVER = 0.68, DELIVERY_RIGHT_DELIVER = 0.37,
+            DELIVERY_LEFT_INIT = 0.64, DELIVER_RIGHT_INIT = 0.37;
 
     public static double DELIVERY_CLAW_OPEN = 0.55, DELIVERY_CLAW_CLOSE = 0.3;
 

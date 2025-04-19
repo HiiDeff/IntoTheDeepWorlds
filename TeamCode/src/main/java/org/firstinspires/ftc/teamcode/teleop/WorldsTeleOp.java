@@ -40,7 +40,7 @@ import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 @Config
 public abstract class WorldsTeleOp extends LinearOpMode {
 
-    private Task intakeTask = null, deliveryTask = null;
+    private Task intakeTask = null, deliveryTask = null, autoDeliveryTask = null;
     private IntakeState intakeState = IntakeState.NEUTRAL;
     private boolean clawOpen, intakeClawVertical = true, testToggle = false, horizontalSlidesClose = false;
     public static double VERTICAL_STAND_POWER = 0.15, MAX_VERTICAL_SLIDE_HEIGHT_INCH = 32.0,
@@ -62,7 +62,7 @@ public abstract class WorldsTeleOp extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         multipleTelemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         robot = (RobotBase) RobotFactory.createRobot(hardwareMap);
-        robot.setLimelightPipeline(IntakeSampleState.SampleColor.COLOR_YELLOW);
+        robot.setLimelightPipeline(IntakeSampleState.SampleColor.COLOR_YELLOW, true);
         sensorUpdateThread = new SensorUpdateThread(robot);
         robot.teleOpInit();
         gp1 = new GamePad(gamepad1);
@@ -108,8 +108,14 @@ public abstract class WorldsTeleOp extends LinearOpMode {
             y *= 0.6;
             a *= 0.6;
         }
-
-        robot.setDrivePowers(new PoseVelocity2d(new Vector2d(x, y), a));
+        if(autoDeliveryTask!=null) {
+            if(pow>0.3) {
+                autoDeliveryTask.cancel();
+                autoDeliveryTask = null;
+            }
+        } else {
+            robot.setDrivePowers(new PoseVelocity2d(new Vector2d(x, y), a));
+        }
     }
     private void runDelivery() {
         if (gp2.onceY()) {
@@ -129,7 +135,7 @@ public abstract class WorldsTeleOp extends LinearOpMode {
                             )
                     );
                 }else {
-                    deliveryTask = createAutoChamberScoreTask();
+                    autoDeliveryTask = createAutoChamberScoreTask();
                 }
             } else {
                 deliveryTask = new SeriesTask(
@@ -143,8 +149,10 @@ public abstract class WorldsTeleOp extends LinearOpMode {
                 );
             }
         }
-
-
+        if (gp1.onceA()) {
+            robot.setDeliveryClawPos(clawOpen ? DeliveryClawTask.Position.CLOSE : DeliveryClawTask.Position.OPEN);
+            clawOpen = !clawOpen;
+        }
         if (gp2.onceA()) {
             if (deliveryTask != null) deliveryTask.cancel();
             deliveryTask = new ParallelTask(
@@ -179,13 +187,8 @@ public abstract class WorldsTeleOp extends LinearOpMode {
                         new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.UP)
                 );
             }
-        } else if(deliveryTask==null) {
+        } else if(deliveryTask==null && autoDeliveryTask==null) {
             robot.setVerticalSlidePowerWithoutEncoder(robot.getVerticalSlidesHeightInch() < 2.0 ? 0 : VERTICAL_STAND_POWER);
-        }
-
-        if (gp1.onceA()) {
-            robot.setDeliveryClawPos(clawOpen ? DeliveryClawTask.Position.CLOSE : DeliveryClawTask.Position.OPEN);
-            clawOpen = !clawOpen;
         }
     }
 
@@ -205,9 +208,9 @@ public abstract class WorldsTeleOp extends LinearOpMode {
 
     private void runIntake(){
         if(gp1.onceY()) {
-           robot.setLimelightPipeline(IntakeSampleState.SampleColor.COLOR_YELLOW);
+           robot.setLimelightPipeline(IntakeSampleState.SampleColor.COLOR_YELLOW, true);
         } else if(gp1.onceB()) {
-            robot.setLimelightPipeline(isRed()? IntakeSampleState.SampleColor.COLOR_RED:IntakeSampleState.SampleColor.COLOR_BLUE);
+            robot.setLimelightPipeline(isRed()? IntakeSampleState.SampleColor.COLOR_RED:IntakeSampleState.SampleColor.COLOR_BLUE, true);
         }
 
         if (gp1.onceDpadRight()) {
@@ -375,6 +378,7 @@ public abstract class WorldsTeleOp extends LinearOpMode {
 
         if(intakeTask != null && intakeTask.perform()) intakeTask = null;
         if(deliveryTask != null && deliveryTask.perform()) deliveryTask = null;
+        if(autoDeliveryTask != null && autoDeliveryTask.perform()) autoDeliveryTask = null;
         gp1.update();
         gp2.update();
         robot.updateEverything();
@@ -535,11 +539,9 @@ public abstract class WorldsTeleOp extends LinearOpMode {
                                 new VerticalSlidesTask(robot, CHAMBER_DELIVER_HEIGHT, 1.0, 1500),
                                 new DeliveryTask(robot, DeliveryTask.WhichDelivery.LEFT, DeliveryTask.Position.CLIP),
                                 new DeliveryTask(robot, DeliveryTask.WhichDelivery.RIGHT, DeliveryTask.Position.CLIP),
-                                new SeriesTask(
-                                        new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
-                                        new IntakeArmTask(robot, IntakeArmTask.Position.SLIGHTLY_UP),
-                                        new IntakeWristTask(robot, IntakeWristTask.Position.SLIGHTLY_UP)
-                                )
+                                new IntakeTurretTask(robot, IntakeTurretTask.Position.STRAIGHT),
+                                new IntakeArmTask(robot, IntakeArmTask.Position.BACK),
+                                new IntakeWristTask(robot, IntakeWristTask.Position.BACK)
                         )
                 )
         );

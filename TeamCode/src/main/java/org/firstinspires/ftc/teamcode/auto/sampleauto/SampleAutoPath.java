@@ -9,8 +9,7 @@ import org.firstinspires.ftc.teamcode.drive.RobotBase;
 import org.firstinspires.ftc.teamcode.drive.RobotFactory;
 
 @Config
-@Autonomous(name = "SAMPLE Auto")
-public class SampleAutoPath extends SampleAuto {
+public abstract class SampleAutoPath extends SampleAuto {
 
     public static Pose2d
             preloadDeliverPos = new Pose2d(7.1656, 21.8393, -0.3651),
@@ -18,10 +17,10 @@ public class SampleAutoPath extends SampleAuto {
             sample1DeliverPos = new Pose2d(5.8525, 23.1857, -0.0849),
             sample2IntakePos = new Pose2d(5.1525, 21.5, -0.0449),
             sample2DeliverPos = new Pose2d(5.1525, 23.1857, -0.20),
-            sample3IntakePos = new Pose2d(7.7623,21,0.19),
-            sample3DeliverPos = new Pose2d(5.3, 21.7, -0.4),
+            sample3IntakePos = new Pose2d(7.1623,21,0.19),
+            sample3DeliverPos = new Pose2d(3.3, 21.7, -0.5),
             submersibleCyclePos = new Pose2d(58.5983, -13.5819, -Math.PI/2),
-            cycleDeliverPos = new Pose2d(2.3, 20.2, -0.5);
+            cycleDeliverPos = new Pose2d(5.3, 20.2, -0.5);
 
     @Override
     protected RobotBase createRobot(HardwareMap hardwareMap) {

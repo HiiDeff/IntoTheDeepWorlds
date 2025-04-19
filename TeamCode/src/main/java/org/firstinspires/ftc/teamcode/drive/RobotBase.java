@@ -28,7 +28,8 @@ import org.firstinspires.ftc.teamcode.util.limelight.LimelightProcessorBase;
 import org.firstinspires.ftc.teamcode.util.limelight.LimelightSampleDetector;
 import org.firstinspires.ftc.teamcode.util.limelight.SampleOrientation;
 import org.firstinspires.ftc.teamcode.util.pid.PIDCoefficients;
-
+import org.firstinspires.ftc.teamcode.util.profile.ServoProfiler;
+import org.firstinspires.ftc.teamcode.util.profile.ProfileConstraints;
 @Config
 public abstract class RobotBase extends PinpointDrive {
 
@@ -61,6 +62,8 @@ public abstract class RobotBase extends PinpointDrive {
     // Servos
     public final Servo deliveryLeft, deliveryRight, deliveryClaw, turret, intakeArm, intakePivot, intakeWrist, intakeClaw;
     public final Servo leftHang, rightHang, hangHookRelease;
+    public final ServoProfiler intakePivotProfiler;
+    public static ProfileConstraints INTAKE_PIVOT_CONSTRAINTS = new ProfileConstraints(300, 300, 300);
 
     // Motion PIDs + Profilers
 //    public static PIDCoefficients VERTICAL_SLIDES_PID_COEFFICIENTS = new PIDCoefficients(0.3, 1.0, 0.02, 0.0, 0.0,0.22); // new PIDCoefficients(0.3, 1.0, 0.006, 0.0, 0.0,0.16); //0.07 min ff, 0.37 = max ff, so do
@@ -76,9 +79,9 @@ public abstract class RobotBase extends PinpointDrive {
             3.75,0.9,10.1,
             0.4/4.6, 1.5/10.5);
     private final LimelightSampleDetector limelightSampleDetector;
-    public static int LIMELIGHT_YELLOW_PIPELINE_IDX = 5,
-            LIMELIGHT_RED_PIPELINE_IDX = 6,
-            LIMELIGHT_BLUE_PIPELINE_IDX = 7;
+    public static int LIMELIGHT_YELLOW_CLOSE_TO_SCREEN_PIPELINE_IDX = 2, LIMELIGHT_YELLOW_FAR_FROM_SCREEN_PIPELINE_IDX = 5,
+            LIMELIGHT_RED_FAR_FROM_SCREEN_PIPELINE_IDX = 6, LIMELIGHT_RED_CLOSE_TO_SCREEN_PIPELINE_IDX = 6,
+            LIMELIGHT_BLUE_FAR_FROM_SCREEN_PIPELINE_IDX = 7, LIMELIGHT_BLUE_CLOSE_TO_SCREEN_PIPELINE_IDX = 4;
     public static double TURRET_DIST_FROM_ROBOT_CENTER = 6.0;
 
 
@@ -142,6 +145,7 @@ public abstract class RobotBase extends PinpointDrive {
         rightHang = hardwareMap.get(Servo.class, "hangR");
         hangHookRelease = hardwareMap.get(Servo.class, "hangHookRelease");
 
+        intakePivotProfiler = new ServoProfiler(intakePivot, INTAKE_PIVOT_CONSTRAINTS);
         // Lights:
 //        light = hardwareMap.get(RevBlinkinLedDriver.class, "light");
 
@@ -178,7 +182,7 @@ public abstract class RobotBase extends PinpointDrive {
         setIntakeArmPos(IntakeArmTask.Position.BACK);
         setIntakeWristPos(IntakeWristTask.Position.TRANSFER);
         setIntakeClawPos(IntakeClawTask.Position.OPEN);
-        setIntakePivotPos(SampleOrientation.VERTICAL);
+        intakePivot.setPosition(getIntakePivotPosition(SampleOrientation.VERTICAL));
         setDeliveryClawPos(DeliveryClawTask.Position.CLOSE);
         setDeliveryPos(DeliveryTask.Position.INIT);
         setTurretPos(IntakeTurretTask.Position.STRAIGHT);
@@ -209,7 +213,7 @@ public abstract class RobotBase extends PinpointDrive {
         lastHorizontalSlidesPos = horizontalSlidesPos;
     }
     public void updateProfilers() {
-
+        intakePivotProfiler.updatePosition();
     }
     public void updateIntakeSampleState() {
         intakeSampleState.update();
@@ -309,7 +313,10 @@ public abstract class RobotBase extends PinpointDrive {
     }
     public abstract double getIntakePivotPosition(SampleOrientation position);
     public void setIntakePivotPos(SampleOrientation position) {
-        intakePivot.setPosition(getIntakePivotPosition(position));
+        intakePivotProfiler.setTargetPosition(getIntakePivotPosition(position));
+    }
+    public void setIntakePivotPos(double pos) {
+        intakePivotProfiler.setTargetPosition(pos);
     }
     public abstract double getTurretPosition(IntakeTurretTask.Position position);
     public void setTurretPos(IntakeTurretTask.Position position) {
@@ -379,18 +386,33 @@ public abstract class RobotBase extends PinpointDrive {
     }
 
     ///////////////////* LIMELIGHT UTILS *///////////////////
-    public void setLimelightPipeline(IntakeSampleState.SampleColor sampleColor) {
-        switch(sampleColor) {
-            case COLOR_RED:
-                limelight.pipelineSwitch(LIMELIGHT_RED_PIPELINE_IDX);
-                break;
-            case COLOR_BLUE:
-                limelight.pipelineSwitch(LIMELIGHT_BLUE_PIPELINE_IDX);
-                break;
-            case COLOR_YELLOW:
-            default:
-                limelight.pipelineSwitch(LIMELIGHT_YELLOW_PIPELINE_IDX);
-                break;
+    public void setLimelightPipeline(IntakeSampleState.SampleColor sampleColor, boolean isCloseToScreen) {
+        if(isCloseToScreen) {
+            switch(sampleColor) {
+                case COLOR_RED:
+                    limelight.pipelineSwitch(LIMELIGHT_RED_CLOSE_TO_SCREEN_PIPELINE_IDX);
+                    break;
+                case COLOR_BLUE:
+                    limelight.pipelineSwitch(LIMELIGHT_BLUE_CLOSE_TO_SCREEN_PIPELINE_IDX);
+                    break;
+                case COLOR_YELLOW:
+                default:
+                    limelight.pipelineSwitch(LIMELIGHT_YELLOW_CLOSE_TO_SCREEN_PIPELINE_IDX);
+                    break;
+            }
+        }else {
+            switch(sampleColor) {
+                case COLOR_RED:
+                    limelight.pipelineSwitch(LIMELIGHT_RED_FAR_FROM_SCREEN_PIPELINE_IDX);
+                    break;
+                case COLOR_BLUE:
+                    limelight.pipelineSwitch(LIMELIGHT_BLUE_FAR_FROM_SCREEN_PIPELINE_IDX);
+                    break;
+                case COLOR_YELLOW:
+                default:
+                    limelight.pipelineSwitch(LIMELIGHT_YELLOW_FAR_FROM_SCREEN_PIPELINE_IDX);
+                    break;
+            }
         }
     }
     public void startLimelight() {

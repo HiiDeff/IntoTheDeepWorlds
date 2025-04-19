@@ -43,7 +43,7 @@ public class IntakePivotTask extends TimedTask {
             double targetPos = position!=null ? robot.getIntakePivotPosition(position):exactPosition;
             setFinishTimeMillis(Utils.getEstimatedServoTime(RPM, MAX_ROTATION_DEGREE,
                     targetPos - currPos));
-            servo.setPosition(targetPos);
+            robot.setIntakePivotPos(targetPos);
             started = true;
         }
         return false;

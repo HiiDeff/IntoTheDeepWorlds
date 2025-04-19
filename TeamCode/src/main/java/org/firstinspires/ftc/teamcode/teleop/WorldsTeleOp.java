@@ -42,7 +42,7 @@ public abstract class WorldsTeleOp extends LinearOpMode {
 
     private Task intakeTask = null, deliveryTask = null, autoDeliveryTask = null;
     private IntakeState intakeState = IntakeState.NEUTRAL;
-    private boolean clawOpen, intakeClawVertical = true, testToggle = false, horizontalSlidesClose = false;
+    private boolean clawOpen, intakeClawVertical = true, testToggle = false, horizontalSlidesClose = false, keepHanging = false;
     public static double VERTICAL_STAND_POWER = 0.15, MAX_VERTICAL_SLIDE_HEIGHT_INCH = 32.0,
             CHAMBER_DELIVER_HEIGHT = 19.5, CHAMBER_DELIVER_DIST_DOWN = 8.5, HANG_HEIGHT_VERTICAL_SLIDES = 16.5, HANG_VERTICAL_SLIDES_REST_ON_BAR = 3.0;//rest on bar position = 125 ticks or 3.8265 inches
     public static double HANG_DRIVETRAIN_POWER = 1.0, HANG_SLIDE_POWER = 1.0;
@@ -320,7 +320,8 @@ public abstract class WorldsTeleOp extends LinearOpMode {
         if(-gp2.leftStickY()>0.5 && -gp2.rightStickY()>0.5) {
             robot.initHang();
             robot.setVerticalSlidePowerWithoutEncoder(pow);
-        }else if(-gp2.leftStickY()<-0.5 && -gp2.rightStickY()<-0.5) {
+            keepHanging = false;
+        }else if(-gp2.leftStickY()<-0.5 && -gp2.rightStickY()<-0.5 || keepHanging) {
             if(!(gp2.leftTrigger()>0.3&&gp2.rightTrigger()>0.3) || robot.getVerticalSlidesHeightInch()>HANG_VERTICAL_SLIDES_REST_ON_BAR) {
                 if (!robot.isHangEngaged()) {
                     robot.engageHang();
@@ -328,6 +329,9 @@ public abstract class WorldsTeleOp extends LinearOpMode {
                 robot.setHangMotorPowers(HANG_DRIVETRAIN_POWER, HANG_SLIDE_POWER);
                 robot.setHorizontalSlidesPowerWithoutEncoder(-VERTICAL_STAND_POWER);
                 lastHang = true;
+                if(gp2.rightBumper() && gp2.leftBumper()) {
+                    keepHanging = true;
+                }
             }
         } else if (lastHang) {
             robot.setHangMotorPowers(0, 0);
